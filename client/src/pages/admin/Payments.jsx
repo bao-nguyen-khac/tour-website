@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import Cookies from "js-cookie";
+import { formatCurrency } from "../../utils/formatCurrency";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 const token = Cookies.get("access_token");
@@ -82,7 +83,7 @@ const Payments = () => {
                 <p>{booking?.buyer?.username}</p>
                 <p>{booking?.buyer?.email}</p>
                 <p>{booking?.date}</p>
-                <p>{booking?.totalPrice} VNĐ</p>
+                <p>{formatCurrency(booking?.totalPrice)}</p>
               </div>
             );
           })}

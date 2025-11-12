@@ -8,6 +8,7 @@ import {
 } from "firebase/storage";
 import { useNavigate, useParams } from "react-router";
 import Cookies from "js-cookie";
+import { showErrorToast, showSuccessToast } from "../../utils/toast";
 
 const UpdatePackage = () => {
   const params = useParams();
@@ -63,7 +64,7 @@ const UpdatePackage = () => {
           packageImages: data?.packageData?.packageImages,
         });
       } else {
-        alert(data?.message || "Something went wrong!");
+        showErrorToast(data?.message);
       }
     } catch (error) {
       console.log(error);
@@ -155,7 +156,7 @@ const UpdatePackage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.packageImages.length === 0) {
-      alert("You must upload atleast 1 image");
+      showErrorToast("Bạn phải tải lên ít nhất 1 hình ảnh!");
       return;
     }
     if (
@@ -168,15 +169,15 @@ const UpdatePackage = () => {
       formData.packageActivities === "" ||
       formData.packagePrice === 0
     ) {
-      alert("All fields are required!");
+      showErrorToast("Vui lòng điền đầy đủ thông tin bắt buộc!");
       return;
     }
-    if (formData.packagePrice < 0) {
-      alert("Price should be greater than 500!");
+    if (formData.packagePrice < 500) {
+      showErrorToast("Giá tour phải lớn hơn hoặc bằng 500!");
       return;
     }
     if (formData.packageDiscountPrice >= formData.packagePrice) {
-      alert("Regular Price should be greater than Discount Price!");
+      showErrorToast("Giá khuyến mãi phải nhỏ hơn giá thường!");
       return;
     }
     if (formData.packageOffer === false) {
@@ -198,15 +199,16 @@ const UpdatePackage = () => {
       if (data?.success === false) {
         setError(data?.message);
         setLoading(false);
+        showErrorToast(data?.message);
+        return;
       }
       setLoading(false);
       setError(false);
-      alert(data?.message);
-      // getPackageData();
-      // setImages([]);
+      showSuccessToast(data?.message);
       navigate(`/package/${params?.id}`);
     } catch (err) {
       console.log(err);
+      showErrorToast();
     }
   };
 

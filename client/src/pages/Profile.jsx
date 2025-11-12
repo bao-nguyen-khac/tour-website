@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   updateUserStart,
   updateUserSuccess,
@@ -17,6 +17,25 @@ import UpdateProfile from "./user/UpdateProfile";
 import MyHistory from "./user/MyHistory";
 import Cookies from "js-cookie";
 import defaultProfileImg from "../assets/images/profile.png";
+import {
+  FaCalendarCheck,
+  FaHistory,
+  FaUserEdit,
+  FaSignOutAlt,
+  FaTrashAlt,
+  FaCamera,
+} from "react-icons/fa";
+import { showErrorToast, showSuccessToast } from "../utils/toast";
+
+const InfoLine = ({ label, value }) => (
+  <div className="flex flex-col rounded-xl bg-white/10 px-4 py-3">
+    <span className="text-xs uppercase tracking-[0.3em] text-slate-200/80">
+      {label}
+    </span>
+    <span className="mt-1 text-sm font-semibold text-white">{value}</span>
+  </div>
+);
+
 const Profile = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -32,8 +51,6 @@ const Profile = () => {
     phone: "",
     avatar: "",
   });
-  const [popup, setPopup] = useState({ show: false, message: "", success: false });
-
   const apiUrl = import.meta.env.VITE_API_URL;
   const token = Cookies.get("access_token");
 
@@ -66,7 +83,7 @@ const Profile = () => {
       
       if (!uploadRes.ok || !uploadData.url) {
         dispatch(updateUserFailure(uploadData.message || "Lỗi upload ảnh"));
-        alert(uploadData.message || "Lỗi upload ảnh");
+        showErrorToast(uploadData.message || "Lỗi upload ảnh");
         return;
       }
 
@@ -84,19 +101,19 @@ const Profile = () => {
       );
       const data = await res.json();
       if (data?.success) {
-        alert(data?.message);
+        showSuccessToast(data?.message);
         setFormData({ ...formData, avatar: uploadData.url });
         dispatch(updateUserSuccess(data?.user));
         setProfilePhoto(null);
         return;
       } else {
         dispatch(updateUserFailure(data?.message));
-        alert(data?.message);
+        showErrorToast(data?.message);
       }
     } catch (error) {
       console.log(error);
       dispatch(updateUserFailure("Lỗi upload ảnh"));
-      alert("Lỗi upload ảnh");
+      showErrorToast("Lỗi upload ảnh");
     }
   };
 
@@ -115,7 +132,7 @@ const Profile = () => {
       }
       dispatch(logOutSuccess());
       navigate("/login");
-      alert(data?.message);
+      showSuccessToast(data?.message);
     } catch (error) {
       console.log(error);
     }
@@ -138,158 +155,159 @@ const Profile = () => {
         const data = await res.json();
         if (data?.success === false) {
           dispatch(deleteUserAccountFailure(data?.message));
-          alert("Đã xảy ra lỗi!");
+          showErrorToast(data?.message || "Đã xảy ra lỗi!");
           return;
         }
         dispatch(deleteUserAccountSuccess());
-        alert(data?.message);
-      } catch (error) {}
+        showSuccessToast(data?.message);
+      } catch (error) {
+        showErrorToast();
+      }
     }
   };
 
-  console.log('🤖 ~ Profile ~ profilePhoto:', profilePhoto);
+  const displayAvatar = profilePhoto
+    ? URL.createObjectURL(profilePhoto)
+    : formData.avatar
+    ? formData.avatar.startsWith("http")
+      ? formData.avatar
+      : `${apiUrl}${formData.avatar}`
+    : defaultProfileImg;
+
+  const tabList = [
+    { id: 1, label: "Đặt chỗ", icon: <FaCalendarCheck className="text-sm" /> },
+    { id: 2, label: "Lịch sử", icon: <FaHistory className="text-sm" /> },
+    { id: 3, label: "Cập nhật hồ sơ", icon: <FaUserEdit className="text-sm" /> },
+  ];
+
   return (
-    <div className="flex w-full flex-wrap max-sm:flex-col p-2">
+    <div className="relative min-h-screen bg-slate-50 py-12">
+      <div className="absolute inset-0 -z-0">
+        <div className="absolute top-16 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-blue-200/40 blur-3xl" />
+        <div className="absolute bottom-0 right-0 h-72 w-72 rounded-full bg-cyan-200/40 blur-3xl" />
+      </div>
       {currentUser ? (
-        <>
-          <div className="w-[40%] p-3 max-sm:w-full">
-            <div className="flex flex-col items-center gap-4 p-3">
-              <div className="w-full flex flex-col items-center relative">
-                <img
-                  src={
-                    (profilePhoto && URL.createObjectURL(profilePhoto)) ||
-                    formData.avatar && apiUrl + formData.avatar || defaultProfileImg
-                  }
-                  alt="Profile photo"
-                  className="w-64 min-h-52 max-h-64 rounded-lg"
-                  onClick={() => fileRef.current.click()}
-                  onMouseOver={() => {
-                    document
-                      .getElementById("photoLabel")
-                      .classList.add("block");
-                  }}
-                  onMouseOut={() => {
-                    document
-                      .getElementById("photoLabel")
-                      .classList.remove("block");
-                  }}
-                />
-                <input
-                  type="file"
-                  name="photo"
-                  id="photo"
-                  hidden
-                  ref={fileRef}
-                  accept="image/*"
-                  onChange={(e) => setProfilePhoto(e.target.files[0])}
-                />
-                <label
-                  htmlFor="photo"
-                  id="photoLabel"
-                  className="w-64 bg-slate-300 absolute bottom-0 p-2 text-center text-lg text-white font-semibold rounded-b-lg"
-                  hidden
-                >
-                  Chọn ảnh
-                </label>
-              </div>
-              {profilePhoto && (
-                <div className="flex w-full justify-between gap-1">
-                  <button
-                    onClick={() => handleProfilePhoto(profilePhoto)}
-                    className="bg-green-700 p-2 text-white mt-3 flex-1 hover:opacity-90"
+        <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 lg:flex-row">
+          <div className="w-full lg:w-[38%]">
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-blue-500 to-sky-500 text-white shadow-2xl">
+              <div className="absolute inset-0 bg-black/10" />
+              <div className="relative z-10 p-6 sm:p-8 flex flex-col gap-6">
+                <div className="flex flex-col items-center gap-4">
+                  <div
+                    className="relative w-44 h-44 rounded-2xl overflow-hidden shadow-lg group cursor-pointer border border-white/30"
+                    onClick={() => fileRef.current.click()}
                   >
-                    {loading ? `Đang tải lên...(${photoPercentage}%)` : "Tải lên"}
+                    <img
+                      src={displayAvatar}
+                      alt="Ảnh đại diện"
+                      className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/60 text-white opacity-0 transition duration-300 group-hover:opacity-100">
+                      <FaCamera className="mb-2 text-xl" />
+                      <span className="text-xs font-semibold uppercase tracking-wide">
+                        Thay đổi ảnh
+                      </span>
+                    </div>
+                  </div>
+                  <input
+                    type="file"
+                    name="photo"
+                    id="photo"
+                    hidden
+                    ref={fileRef}
+                    accept="image/*"
+                    onChange={(e) => setProfilePhoto(e.target.files[0])}
+                  />
+                  {profilePhoto && (
+                    <button
+                      onClick={() => handleProfilePhoto(profilePhoto)}
+                      className="w-full rounded-xl bg-white/15 px-4 py-2 text-sm font-semibold uppercase tracking-wide text-white shadow-lg transition hover:bg-white/25"
+                    >
+                      {loading
+                        ? `Đang tải lên...${photoPercentage ? ` (${photoPercentage}%)` : ""}`
+                        : "Xác nhận tải lên"}
+                    </button>
+                  )}
+                </div>
+
+                <div className="rounded-2xl bg-white/15 px-5 py-4 shadow-inner backdrop-blur-sm">
+                  <p className="text-sm uppercase tracking-[0.3em] text-slate-200">
+                    Xin chào,
+                  </p>
+                  <h2 className="mt-1 text-3xl font-bold">{currentUser.username}</h2>
+                  <p className="mt-4 text-sm text-slate-100/90">
+                    Cập nhật thông tin cá nhân, quản lý đặt chỗ và xem lại lịch sử
+                    hành trình của bạn trong cùng một nơi.
+                  </p>
+                </div>
+
+                <div className="grid gap-3 rounded-2xl bg-white/10 p-4 shadow-inner backdrop-blur">
+                  <InfoLine label="Email" value={currentUser.email || "Chưa cập nhật"} />
+                  <InfoLine
+                    label="Số điện thoại"
+                    value={currentUser.phone || "Chưa cập nhật"}
+                  />
+                  <InfoLine
+                    label="Địa chỉ"
+                    value={currentUser.address || "Chưa cập nhật"}
+                  />
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center justify-center gap-2 rounded-xl bg-white/15 px-4 py-3 text-sm font-semibold uppercase tracking-wide text-white transition hover:bg-red-500/80"
+                  >
+                    <FaSignOutAlt />
+                    Đăng xuất
+                  </button>
+                  <button
+                    onClick={() => setActivePanelId(3)}
+                    className="flex items-center justify-center gap-2 rounded-xl bg-white text-blue-700 px-4 py-3 text-sm font-semibold uppercase tracking-wide transition hover:bg-blue-50"
+                  >
+                    <FaUserEdit />
+                    Chỉnh sửa hồ sơ
+                  </button>
+                  <button
+                    onClick={handleDeleteAccount}
+                    className="sm:col-span-2 flex items-center justify-center gap-2 rounded-xl border border-white/40 px-4 py-3 text-sm font-semibold uppercase tracking-wide text-white transition hover:bg-red-600/90"
+                  >
+                    <FaTrashAlt />
+                    Xóa tài khoản
                   </button>
                 </div>
-              )}
-              <p
-                style={{
-                  width: "100%",
-                  borderBottom: "1px solid black",
-                  lineHeight: "0.1em",
-                  margin: "10px",
-                }}
-              >
-                <span className="font-semibold" style={{ background: "#fff" }}>
-                  Chi tiết
-                </span>
-              </p>
-              <div className="w-full flex justify-between px-1">
-                <button
-                  onClick={handleLogout}
-                  className="text-red-600 text-lg font-semibold self-start border border-red-600 p-1 rounded-lg hover:bg-red-600 hover:text-white"
-                >
-                  Đăng xuất
-                </button>
-                <button
-                  onClick={() => setActivePanelId(3)}
-                  className="text-white text-lg self-end bg-gray-500 p-1 rounded-lg hover:bg-gray-700"
-                >
-                  Chỉnh sửa hồ sơ
-                </button>
               </div>
-              <div className="w-full shadow-2xl rounded-lg p-3 break-all">
-                <p className="text-3xl font-semibold m-1">
-                  Xin chào {currentUser.username} !
-                </p>
-                <p className="text-lg font-semibold">
-                  Email:{currentUser.email}
-                </p>
-                <p className="text-lg font-semibold">
-                  Số điện thoại:{currentUser.phone}
-                </p>
-                <p className="text-lg font-semibold">
-                  Địa chỉ:{currentUser.address}
-                </p>
-              </div>
-              <button
-                onClick={handleDeleteAccount}
-                className="text-red-600 hover:underline"
-              >
-                Xóa tài khoản
-              </button>
             </div>
           </div>
-          {/* ---------------------------------------------------------------------------------------- */}
-          <div className="w-[60%] max-sm:w-full">
-            <div>
-              <nav className="w-full border-blue-500 border-b-4">
-                <div className="w-full flex gap-2">
+
+          <div className="w-full lg:flex-1">
+            <div className="rounded-3xl border border-slate-200 bg-white/80 p-4 shadow-xl backdrop-blur">
+              <nav className="mb-6 flex flex-wrap gap-3">
+                {tabList.map((tab) => (
                   <button
-                    className={
-                      activePanelId === 1
-                        ? "p-1 rounded-t transition-all duration-300 bg-blue-500 text-white"
-                        : "p-1 rounded-t transition-all duration-300"
-                    }
-                    id="bookings"
-                    onClick={() => setActivePanelId(1)}
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setActivePanelId(tab.id)}
+                    className={`flex items-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold transition-all ${
+                      activePanelId === tab.id
+                        ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
+                        : "bg-white text-slate-600 border border-transparent hover:border-slate-200 hover:text-blue-600"
+                    }`}
                   >
-                    Đặt chỗ
+                    {tab.icon}
+                    {tab.label}
                   </button>
-                  <button
-                    className={
-                      activePanelId === 2
-                        ? "p-1 rounded-t transition-all duration-300 bg-blue-500 text-white"
-                        : "p-1 rounded-t transition-all duration-300"
-                    }
-                    id="updateProfile"
-                    onClick={() => setActivePanelId(2)}
-                  >
-                    Lịch sử
-                  </button>
-                </div>
+                ))}
               </nav>
-              {/* bookings */}
-              <div className="main flex flex-wrap">
+
+              <div className="rounded-2xl border border-slate-100 bg-white/60 p-4 shadow-inner backdrop-blur">
                 {activePanelId === 1 && <MyBookings />}
-                {/* History */}
                 {activePanelId === 2 && <MyHistory />}
-                {/* Update profile */}
                 {activePanelId === 3 && <UpdateProfile />}
               </div>
             </div>
           </div>
-        </>
+        </div>
       ) : (
         <div>
           <p className="text-red-700">Vui lòng đăng nhập trước</p>

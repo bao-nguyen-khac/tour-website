@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Cookies from "js-cookie";
+import { showErrorToast, showSuccessToast } from "../../utils/toast";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 const token = Cookies.get("access_token");
@@ -31,7 +32,7 @@ const AllPackages = () => {
         setLoading(false);
       } else {
         setLoading(false);
-        alert(data?.message || "Something went wrong!");
+        showErrorToast(data?.message);
       }
       if (data?.packages?.length > 8) {
         setShowMoreBtn(true);
@@ -40,6 +41,7 @@ const AllPackages = () => {
       }
     } catch (error) {
       console.log(error);
+      showErrorToast();
     }
   };
 
@@ -73,11 +75,18 @@ const AllPackages = () => {
         method: "DELETE",
       });
       const data = await res.json();
-      alert(data?.message);
+      if (!data?.success) {
+        showErrorToast(data?.message);
+        setLoading(false);
+        return;
+      }
+      showSuccessToast(data?.message);
       getPackages();
       setLoading(false);
     } catch (error) {
       console.log(error);
+      showErrorToast();
+      setLoading(false);
     }
   };
 

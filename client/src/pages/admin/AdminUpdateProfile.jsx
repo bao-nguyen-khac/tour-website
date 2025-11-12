@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router";
 import {
   updateUserStart,
   updateUserSuccess,
@@ -9,10 +10,12 @@ import {
   updatePassFailure,
 } from "../../redux/user/userSlice";
 import Cookies from "js-cookie";
+import { showErrorToast, showSuccessToast } from "../../utils/toast";
 
 const AdminUpdateProfile = () => {
   const { currentUser, loading, error } = useSelector((state) => state.user);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [updateProfileDetailsPanel, setUpdateProfileDetailsPanel] =
     useState(true);
   const [formData, setFormData] = useState({
@@ -61,7 +64,7 @@ const AdminUpdateProfile = () => {
       currentUser.address === formData.address &&
       currentUser.phone === formData.phone
     ) {
-      alert("Thay đổi ít nhất 1 trường để cập nhật thông tin");
+      showErrorToast("Vui lòng thay đổi ít nhất 1 thông tin trước khi cập nhật!");
       return;
     }
     try {
@@ -77,20 +80,21 @@ const AdminUpdateProfile = () => {
       const data = await res.json();
       if (data.success === false && res.status !== 201 && res.status !== 200) {
         dispatch(updateUserSuccess());
-        dispatch(updateUserFailure(data?.messsage));
-        alert("Phiên đăng nhập đã kết thúc! Vui lòng đăng nhập lại");
+        dispatch(updateUserFailure(data?.message));
+        showErrorToast("Phiên đăng nhập đã kết thúc! Vui lòng đăng nhập lại.");
         navigate("/login");
         return;
       }
       if (data.success && res.status === 201) {
-        alert(data?.message);
+        showSuccessToast(data?.message);
         dispatch(updateUserSuccess(data?.user));
         return;
       }
-      alert(data?.message);
+      showErrorToast(data?.message);
       return;
     } catch (error) {
       console.log(error);
+      showErrorToast("Cập nhật thất bại! Vui lòng thử lại.");
     }
   };
 
@@ -100,11 +104,11 @@ const AdminUpdateProfile = () => {
       updatePassword.oldpassword === "" ||
       updatePassword.newpassword === ""
     ) {
-      alert("Nhập mật khẩu hợp lệ");
+      showErrorToast("Vui lòng nhập đầy đủ mật khẩu cũ và mới!");
       return;
     }
     if (updatePassword.oldpassword === updatePassword.newpassword) {
-      alert("Mật khẩu mới không được trùng với mật khẩu cũ!");
+      showErrorToast("Mật khẩu mới không được trùng với mật khẩu cũ!");
       return;
     }
     try {
@@ -121,12 +125,12 @@ const AdminUpdateProfile = () => {
       if (data.success === false && res.status !== 201 && res.status !== 200) {
         dispatch(updateUserSuccess());
         dispatch(updatePassFailure(data?.message));
-        alert("Phiên đăng nhập đã kết thúc! Vui lòng đăng nhập lại");
+        showErrorToast("Phiên đăng nhập đã kết thúc! Vui lòng đăng nhập lại.");
         navigate("/login");
         return;
       }
       dispatch(updatePassSuccess());
-      alert(data?.message);
+      showSuccessToast(data?.message);
       setUpdatePassword({
         oldpassword: "",
         newpassword: "",
@@ -134,6 +138,7 @@ const AdminUpdateProfile = () => {
       return;
     } catch (error) {
       console.log(error);
+      showErrorToast("Có lỗi xảy ra khi cập nhật mật khẩu!");
     }
   };
 

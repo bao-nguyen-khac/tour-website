@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { FaStar, FaClock } from "react-icons/fa";
+import { formatCurrency } from "../utils/formatCurrency";
 
 const OfferCard = ({ pkg }) => {
   const hasDaysOrNights = (+pkg.packageDays > 0 || +pkg.packageNights > 0);
@@ -25,14 +26,14 @@ const OfferCard = ({ pkg }) => {
           {showOffer ? (
             <div className="absolute right-3 top-3">
               <div className="w-20 h-20 rounded-full bg-gradient-to-b from-pink-400 to-pink-600 text-white flex flex-col items-center justify-center shadow-lg">
-                <span className="text-sm font-bold">{pkg.packageDiscountPrice}₫</span>
-                <span className="text-[10px] line-through opacity-80">{pkg.packagePrice}₫</span>
+                <span className="text-sm font-bold">{formatCurrency(pkg.packageDiscountPrice)}</span>
+                <span className="text-[10px] line-through opacity-80">{formatCurrency(pkg.packagePrice)}</span>
               </div>
             </div>
           ) : (
             <div className="absolute right-3 top-3">
               <div className="w-20 h-20 rounded-full bg-gradient-to-b from-blue-400 to-blue-600 text-white flex flex-col items-center justify-center shadow-lg">
-                <span className="text-sm font-bold">{pkg.packagePrice}₫</span>
+                <span className="text-sm font-bold">{formatCurrency(pkg.packagePrice)}</span>
               </div>
             </div>
           )}

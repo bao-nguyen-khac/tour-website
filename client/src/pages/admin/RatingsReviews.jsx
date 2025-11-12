@@ -2,6 +2,7 @@ import { Rating } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Cookies from "js-cookie";
+import { showErrorToast } from "../../utils/toast";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 const token = Cookies.get("access_token");
@@ -28,7 +29,7 @@ const RatingsReviews = () => {
         setLoading(false);
       } else {
         setLoading(false);
-        alert(data?.message || "Something went wrong!");
+        showErrorToast(data?.message);
       }
       if (data?.packages?.length > 8) {
         setShowMoreBtn(true);
@@ -37,6 +38,7 @@ const RatingsReviews = () => {
       }
     } catch (error) {
       console.log(error);
+      showErrorToast();
     }
   };
 

@@ -1,7 +1,7 @@
-import { Rating } from "@mui/material";
 import React from "react";
 import { FaClock, FaStar } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { formatCurrency } from "../utils/formatCurrency";
 
 const PackageCard = ({ packageData }) => {
   const hasDaysOrNights = (+packageData.packageDays > 0 || +packageData.packageNights > 0);
@@ -29,12 +29,16 @@ const PackageCard = ({ packageData }) => {
           <div className="absolute right-0 bottom-0">
             {showOffer ? (
               <div className="bg-blue-600 text-white px-4 py-2 rounded-tl-xl">
-                <span className="line-through opacity-80 mr-2 text-sm">{packageData.packagePrice}₫</span>
-                <span className="font-bold">{packageData.packageDiscountPrice}₫</span>
+                <span className="line-through opacity-80 mr-2 text-sm">
+                  {formatCurrency(packageData.packagePrice)}
+                </span>
+                <span className="font-bold">
+                  {formatCurrency(packageData.packageDiscountPrice)}
+                </span>
               </div>
             ) : (
               <div className="bg-blue-600 text-white px-4 py-2 rounded-tl-xl font-bold">
-                {packageData.packagePrice}₫
+                {formatCurrency(packageData.packagePrice)}
               </div>
             )}
           </div>

@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import Chart from "../components/Chart";
 import Cookies from "js-cookie";
+import { showErrorToast, showSuccessToast } from "../../utils/toast";
 
 const AllBookings = () => {
   const { currentUser } = useSelector((state) => state.user);
@@ -34,9 +35,11 @@ const AllBookings = () => {
       } else {
         setLoading(false);
         setError(data?.message);
+        showErrorToast(data?.message);
       }
     } catch (error) {
       console.log(error);
+      showErrorToast();
     }
   };
 
@@ -59,14 +62,15 @@ const AllBookings = () => {
       const data = await res.json();
       if (data?.success) {
         setLoading(false);
-        alert(data?.message);
+        showSuccessToast(data?.message);
         getAllBookings();
       } else {
         setLoading(false);
-        alert(data?.message);
+        showErrorToast(data?.message);
       }
     } catch (error) {
       console.log(error);
+      showErrorToast();
     }
   };
 

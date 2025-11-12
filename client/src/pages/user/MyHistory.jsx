@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import Cookies from "js-cookie";
+import { showErrorToast, showSuccessToast } from "../../utils/toast";
 
 const MyHistory = () => {
   const { currentUser } = useSelector((state) => state.user);
@@ -32,9 +33,11 @@ const MyHistory = () => {
       } else {
         setLoading(false);
         setError(data?.message);
+        showErrorToast(data?.message);
       }
     } catch (error) {
       console.log(error);
+      showErrorToast();
     }
   };
 
@@ -57,14 +60,15 @@ const MyHistory = () => {
       const data = await res.json();
       if (data?.success) {
         setLoading(false);
-        alert(data?.message);
+        showSuccessToast(data?.message);
         getAllBookings();
       } else {
         setLoading(false);
-        alert(data?.message);
+        showErrorToast(data?.message);
       }
     } catch (error) {
       console.log(error);
+      showErrorToast();
     }
   };
 

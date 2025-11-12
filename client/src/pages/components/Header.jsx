@@ -1,12 +1,14 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import defaultProfileImg from "../../assets/images/profile.png";
 import Cookies from "js-cookie";
-import { FaPhone, FaClock, FaFacebook, FaTwitter, FaPinterest, FaInstagram, FaShoppingCart, FaSearch as FaSearchIcon, FaCompass, FaTumblr } from "react-icons/fa";
+import { FaPhone, FaClock, FaFacebook, FaTwitter, FaPinterest, FaInstagram, FaShoppingCart, FaSearch as FaSearchIcon, FaCompass, FaTumblr, FaQuestion } from "react-icons/fa";
+import { showErrorToast, showSuccessToast } from "../../utils/toast";
 
 const Header = () => {
   const { currentUser } = useSelector((state) => state.user);
+  const location = useLocation();
   const [showSurvey, setShowSurvey] = useState(false);
   const [survey, setSurvey] = useState({
     destination: "",
@@ -45,15 +47,15 @@ const Header = () => {
       });
       const data = await res.json();
       if (data?.success) {
-        alert(data?.message);
+        showSuccessToast(data?.message);
         setSurvey({ destination: "", stayDurationDays: 1, transportation: "", numPersons: 1, travelType: "" });
         setShowSurvey(false);
       } else {
-        alert(data?.message || "Đã xảy ra lỗi");
+        showErrorToast(data?.message);
       }
     } catch (error) {
       console.log(error);
-      alert("Đã xảy ra lỗi");
+      showErrorToast();
     }
   };
 
@@ -90,26 +92,51 @@ const Header = () => {
         </Link>
 
         <div className="flex items-center gap-6 uppercase text-sm font-medium">
-          <Link to="/" className="hover:text-blue-300 border-b-2 border-blue-400 pb-1">
+          <Link 
+            to="/" 
+            className={`relative transition-all duration-300 pb-1 ${
+              location.pathname === "/" 
+                ? "text-blue-300 border-b-2 border-blue-400" 
+                : "hover:text-blue-300 hover:border-b-2 hover:border-blue-400"
+            }`}
+          >
             Trang chủ
           </Link>
-          <Link to="/search" className="hover:text-blue-300">
+          <Link 
+            to="/search" 
+            className={`relative transition-all duration-300 pb-1 ${
+              location.pathname === "/search" 
+                ? "text-blue-300 border-b-2 border-blue-400" 
+                : "hover:text-blue-300 hover:border-b-2 hover:border-blue-400"
+            }`}
+          >
             Tours
           </Link>
-          <Link to="/search" className="hover:text-blue-300">
-            Đặt chỗ
-          </Link>
-          <Link to="/about" className="hover:text-blue-300">
+          <Link 
+            to="/about" 
+            className={`relative transition-all duration-300 pb-1 ${
+              location.pathname === "/about" 
+                ? "text-blue-300 border-b-2 border-blue-400" 
+                : "hover:text-blue-300 hover:border-b-2 hover:border-blue-400"
+            }`}
+          >
             Giới thiệu
           </Link>
           <button
             onClick={openSurvey}
-            className="hover:text-blue-300"
+            className="relative transition-all duration-300 pb-1 hover:text-blue-300 hover:border-b-2 hover:border-blue-400"
           >
-            Khảo sát
+            KHẢO SÁT
           </button>
           {!currentUser && (
-            <Link to="/login" className="hover:text-blue-300">
+            <Link 
+              to="/login" 
+              className={`relative transition-all duration-300 pb-1 ${
+                location.pathname === "/login" 
+                  ? "text-blue-300 border-b-2 border-blue-400" 
+                  : "hover:text-blue-300 hover:border-b-2 hover:border-blue-400"
+              }`}
+            >
               Đăng nhập
             </Link>
           )}
@@ -118,7 +145,7 @@ const Header = () => {
               <img
                 src={currentUser?.avatar || defaultProfileImg}
                 alt="profile"
-                className="w-10 h-10 rounded-full object-cover border-2 border-white"
+                className="w-10 h-10 rounded-full object-cover border-2 border-white hover:border-blue-300 transition-all duration-300"
               />
             </Link>
           )}
@@ -127,89 +154,144 @@ const Header = () => {
 
       {/* Modal Khảo sát */}
       {showSurvey && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="w-[95%] sm:w-[520px] rounded-xl shadow-2xl overflow-hidden">
-            <div className="bg-slate-400 text-white px-4 py-3 flex items-center justify-between">
-              <h2 className="text-lg sm:text-xl font-semibold">Khảo sát du lịch</h2>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
+          <div className="w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden animate-slideUp">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white px-6 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                  <FaQuestion className="text-xl" />
+                </div>
+                <h2 className="text-xl md:text-2xl font-bold">Khảo sát du lịch</h2>
+              </div>
               <button
                 onClick={() => setShowSurvey(false)}
-                className="text-white hover:opacity-90 text-xl leading-none"
+                className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition text-xl leading-none"
                 aria-label="Đóng"
               >
                 ✕
               </button>
             </div>
-            <div className="bg-white bg-opacity-90 p-4 sm:p-5">
-              <form onSubmit={handleSurveySubmit} className="grid grid-cols-1 gap-3">
-                <div className="flex flex-col">
-                  <label htmlFor="destination" className="font-semibold text-slate-700">Địa điểm</label>
-                  <select
-                    id="destination"
-                    className="p-2 border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-slate-400"
-                    value={survey.destination}
-                    onChange={handleSurveyChange}
-                    required
-                  >
-                    <option value="">Tất cả</option>
-                    <option value="Hà Nội">Hà Nội</option>
-                    <option value="TP Hồ Chí Minh">TP Hồ Chí Minh</option>
-                    <option value="Đà Nẵng">Đà Nẵng</option>
-                    <option value="Nha Trang">Nha Trang</option>
-                    <option value="Đà Lạt">Đà Lạt</option>
-                    <option value="Huế">Huế</option>
-                    <option value="Hội An">Hội An</option>
-                    <option value="Phú Quốc">Phú Quốc</option>
-                    <option value="Vũng Tàu">Vũng Tàu</option>
-                    <option value="Sa Pa">Sa Pa</option>
-                    <option value="Hạ Long">Hạ Long</option>
-                    <option value="Quy Nhơn">Quy Nhơn</option>
-                  </select>
+
+            {/* Form */}
+            <div className="p-6 md:p-8">
+              <p className="text-slate-600 mb-6 text-center">
+                Chúng tôi muốn biết sở thích du lịch của bạn để cải thiện dịch vụ tốt hơn
+              </p>
+              <form onSubmit={handleSurveySubmit} className="space-y-4">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="destination" className="block text-sm font-semibold text-slate-700 mb-2">
+                      Địa điểm mong muốn
+                    </label>
+                    <select
+                      id="destination"
+                      className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      value={survey.destination}
+                      onChange={handleSurveyChange}
+                      required
+                    >
+                      <option value="">Chọn địa điểm</option>
+                      <option value="Hà Nội">Hà Nội</option>
+                      <option value="TP Hồ Chí Minh">TP Hồ Chí Minh</option>
+                      <option value="Đà Nẵng">Đà Nẵng</option>
+                      <option value="Nha Trang">Nha Trang</option>
+                      <option value="Đà Lạt">Đà Lạt</option>
+                      <option value="Huế">Huế</option>
+                      <option value="Hội An">Hội An</option>
+                      <option value="Phú Quốc">Phú Quốc</option>
+                      <option value="Vũng Tàu">Vũng Tàu</option>
+                      <option value="Sa Pa">Sa Pa</option>
+                      <option value="Hạ Long">Hạ Long</option>
+                      <option value="Quy Nhơn">Quy Nhơn</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label htmlFor="stayDurationDays" className="block text-sm font-semibold text-slate-700 mb-2">
+                      Thời gian ở lại (ngày)
+                    </label>
+                    <input
+                      id="stayDurationDays"
+                      type="number"
+                      min="1"
+                      className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      value={survey.stayDurationDays}
+                      onChange={handleSurveyChange}
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="transportation" className="block text-sm font-semibold text-slate-700 mb-2">
+                      Phương tiện di chuyển
+                    </label>
+                    <select
+                      id="transportation"
+                      className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      value={survey.transportation}
+                      onChange={handleSurveyChange}
+                      required
+                    >
+                      <option value="">Chọn phương tiện</option>
+                      <option value="Ô tô">Ô tô</option>
+                      <option value="Máy bay">Máy bay</option>
+                      <option value="Tàu">Tàu</option>
+                      <option value="Thuyền">Thuyền</option>
+                      <option value="Khác">Khác</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label htmlFor="numPersons" className="block text-sm font-semibold text-slate-700 mb-2">
+                      Số lượng người
+                    </label>
+                    <input
+                      id="numPersons"
+                      type="number"
+                      min="1"
+                      className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      value={survey.numPersons}
+                      onChange={handleSurveyChange}
+                      required
+                    />
+                  </div>
                 </div>
-                <div className="flex flex-col">
-                  <label htmlFor="stayDurationDays" className="font-semibold text-slate-700">Thời gian ở lại (ngày)</label>
-                  <input id="stayDurationDays" type="number" min="1" className="p-2 border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-slate-400" value={survey.stayDurationDays} onChange={handleSurveyChange} required />
-                </div>
-                <div className="flex flex-col">
-                  <label htmlFor="transportation" className="font-semibold text-slate-700">Phương tiện di chuyển</label>
-                  <select
-                    id="transportation"
-                    className="p-2 border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-slate-400"
-                    value={survey.transportation}
-                    onChange={handleSurveyChange}
-                    required
-                  >
-                    <option value="">Chọn</option>
-                    <option>Ô tô</option>
-                    <option>Máy bay</option>
-                    <option>Tàu</option>
-                    <option>Thuyền</option>
-                    <option>Khác</option>
-                  </select>
-                </div>
-                <div className="flex flex-col">
-                  <label htmlFor="numPersons" className="font-semibold text-slate-700">Số lượng người</label>
-                  <input id="numPersons" type="number" min="1" className="p-2 border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-slate-400" value={survey.numPersons} onChange={handleSurveyChange} required />
-                </div>
-                <div className="flex flex-col">
-                  <label htmlFor="travelType" className="font-semibold text-slate-700">Thể loại du lịch</label>
+
+                <div>
+                  <label htmlFor="travelType" className="block text-sm font-semibold text-slate-700 mb-2">
+                    Thể loại du lịch
+                  </label>
                   <select
                     id="travelType"
-                    className="p-2 border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-slate-400"
+                    className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                     value={survey.travelType}
                     onChange={handleSurveyChange}
                     required
                   >
-                    <option value="">Chọn</option>
-                    <option>Biển</option>
-                    <option>Núi</option>
-                    <option>Nghỉ dưỡng</option>
-                    <option>Khám phá</option>
-                    <option>Văn hóa</option>
+                    <option value="">Chọn thể loại</option>
+                    <option value="Biển">Biển</option>
+                    <option value="Núi">Núi</option>
+                    <option value="Nghỉ dưỡng">Nghỉ dưỡng</option>
+                    <option value="Khám phá">Khám phá</option>
+                    <option value="Văn hóa">Văn hóa</option>
                   </select>
                 </div>
-                <div className="flex gap-2 pt-2">
-                  <button type="button" onClick={() => setShowSurvey(false)} className="flex-1 p-3 bg-white border border-slate-300 text-slate-700 rounded hover:bg-slate-50">Hủy</button>
-                  <button className="flex-1 p-3 bg-slate-700 text-white rounded hover:opacity-90">Gửi khảo sát</button>
+
+                <div className="flex gap-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowSurvey(false)}
+                    className="flex-1 px-6 py-3 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 transition font-semibold"
+                  >
+                    Bỏ qua
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition font-semibold shadow-lg"
+                  >
+                    Gửi khảo sát
+                  </button>
                 </div>
               </form>
             </div>

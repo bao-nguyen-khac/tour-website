@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import "./styles/Home.css";
 import { FaCalendar, FaQuestion, FaSearch, FaStar, FaEye, FaGlobe, FaDollarSign, FaCamera, FaComments, FaHeart, FaMapMarkerAlt, FaShare, FaPhone, FaEnvelope } from "react-icons/fa";
 import { FaRankingStar } from "react-icons/fa6";
@@ -7,6 +7,7 @@ import PackageCard from "./PackageCard";
 import OfferCard from "./OfferCard";
 import { useNavigate } from "react-router";
 import Cookies from "js-cookie";
+import { showErrorToast, showSuccessToast } from "../utils/toast";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -19,23 +20,32 @@ const Home = () => {
     searchTerm: "",
     option: "new", // new | offer | rating | popular
   });
+  const [showSurvey, setShowSurvey] = useState(false);
+  const [survey, setSurvey] = useState({
+    destination: "",
+    stayDurationDays: 1,
+    transportation: "",
+    numPersons: 1,
+    travelType: "",
+  });
+  const surveyShownRef = useRef(false);
 
   const destinations = [
     {
       name: "Hà Nội",
-      img: "https://images.unsplash.com/photo-1558981806-ec527fa84c39?q=80&w=1400&auto=format&fit=crop",
+      img: "https://images.pexels.com/photos/34621330/pexels-photo-34621330.jpeg",
     },
     {
       name: "Đà Nẵng",
-      img: "https://images.unsplash.com/photo-1583394838336-acd977736f90?q=80&w=1400&auto=format&fit=crop",
+      img: "https://cdn-media.sforum.vn/storage/app/media/ctvseo_MH/%E1%BA%A3nh%20%C4%91%E1%BA%B9p%20%C4%91%C3%A0%20n%E1%BA%B5ng/anh-dep-da-nang-thumb.jpg",
     },
     {
       name: "Nha Trang",
-      img: "https://images.unsplash.com/photo-1526481280698-8fcc13fd9b7f?q=80&w=1400&auto=format&fit=crop",
+      img: "https://vcdn1-vnexpress.vnecdn.net/2021/03/22/NhaTrang-KhoaTran-27-1616120145.jpg?w=1200&h=0&q=100&dpr=1&fit=crop&s=9BMNnjV_o665_kwWTgfOSQ",
     },
     {
-      name: "Phú Quốc",
-      img: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?q=80&w=1400&auto=format&fit=crop",
+      name: "Huế",
+      img: "https://cdn-media.sforum.vn/storage/app/media/ctvseo_MH/%E1%BA%A3nh%20%C4%91%E1%BA%B9p%20Hu%E1%BA%BF/anh-dep-hue-1.jpg",
     },
   ];
   // remove survey form and related state/handlers
@@ -57,7 +67,7 @@ const Home = () => {
         setLoading(false);
       } else {
         setLoading(false);
-        alert(data?.message || "Something went wrong!");
+        showErrorToast(data?.message);
       }
     } catch (error) {
       console.log(error);
@@ -78,7 +88,7 @@ const Home = () => {
         setLoading(false);
       } else {
         setLoading(false);
-        alert(data?.message || "Something went wrong!");
+        showErrorToast(data?.message);
       }
     } catch (error) {
       console.log(error);
@@ -99,7 +109,7 @@ const Home = () => {
         setLoading(false);
       } else {
         setLoading(false);
-        alert(data?.message || "Something went wrong!");
+        showErrorToast(data?.message);
       }
     } catch (error) {
       console.log(error);
@@ -108,11 +118,80 @@ const Home = () => {
 
   // remove survey form and related state/handlers
 
+  const handleSurveyChange = (e) => {
+    const { id, value } = e.target;
+    setSurvey({ ...survey, [id]: value });
+  };
+
+  const handleSurveySubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch(`${apiUrl}/api/survey`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(survey),
+      });
+      const data = await res.json();
+      if (data?.success) {
+        // Lưu vào localStorage để không hiện lại
+        localStorage.setItem("surveySubmitted", "true");
+        showSuccessToast(data?.message || "Cảm ơn bạn đã tham gia khảo sát!");
+        setSurvey({ destination: "", stayDurationDays: 1, transportation: "", numPersons: 1, travelType: "" });
+        setShowSurvey(false);
+      } else {
+        showErrorToast(data?.message);
+      }
+    } catch (error) {
+      console.log(error);
+      showErrorToast();
+    }
+  };
+
   useEffect(() => {
     getTopPackages();
     getLatestPackages();
     getOfferPackages();
   }, []);
+
+  // Scroll detection để hiển thị survey
+  useEffect(() => {
+    // Check xem user đã submit chưa
+    const surveySubmitted = localStorage.getItem("surveySubmitted");
+    if (surveySubmitted === "true" || surveyShownRef.current) {
+      return; // Không hiển thị nếu đã submit hoặc đã hiển thị
+    }
+
+    const handleScroll = () => {
+      if (surveyShownRef.current || showSurvey) return; // Đã hiển thị rồi thì không hiển thị lại
+
+      // Tính toán khi scroll đến gần cuối trang (85% chiều cao)
+      const scrollHeight = document.documentElement.scrollHeight;
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const clientHeight = document.documentElement.clientHeight;
+      const scrollPercentage = (scrollTop + clientHeight) / scrollHeight;
+
+      // Hiển thị khi scroll đến 85% trang
+      if (scrollPercentage >= 0.85) {
+        surveyShownRef.current = true;
+        setShowSurvey(true);
+        // Remove listener sau khi đã hiển thị
+        window.removeEventListener("scroll", handleScroll);
+      }
+    };
+
+    // Thêm delay nhỏ để đảm bảo DOM đã render
+    const timeoutId = setTimeout(() => {
+      window.addEventListener("scroll", handleScroll, { passive: true });
+    }, 500);
+
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [showSurvey]);
 
   return (
     <div className="main w-full">
@@ -362,22 +441,22 @@ const Home = () => {
             <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-8 px-3">
               {/* Latest Post */}
               <div>
-                <div className="text-3xl font-bold text-slate-800 mb-2">LATEST POST</div>
+                <div className="text-3xl font-bold text-slate-800 mb-2">Bài viết mới nhất</div>
                 <div className="w-16 h-1 bg-blue-400 mb-6" />
                 <div className="rounded-xl overflow-hidden shadow">
                   <img
-                    src="https://images.unsplash.com/photo-1499946982491-6f23f69e08e4?q=80&w=1600&auto=format&fit=crop"
+                    src="https://suckhoedoisong.qltns.mediacdn.vn/324455921873985536/2022/7/10/hinh-anh-cac-loai-hinh-du-lich-3-1657423025597-1657423027180128362217.jpeg"
                     alt="Latest post"
                     className="w-full h-72 object-cover"
                   />
                   <div className="p-6">
-                    <h3 className="text-2xl font-semibold text-slate-800 mb-3">Before You Go</h3>
+                    <h3 className="text-2xl font-semibold text-slate-800 mb-3">Trước khi đi</h3>
                     <p className="text-slate-600 mb-5">
                       Một vài điều cần chuẩn bị trước chuyến đi: đồ dùng cá nhân, giấy tờ, kế hoạch thời gian
                       và danh sách các điểm đến yêu thích để chuyến đi trọn vẹn hơn.
                     </p>
                     <button className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full text-sm">
-                      READ MORE
+                      ĐỌC THÊM
                     </button>
                   </div>
                 </div>
@@ -385,7 +464,7 @@ const Home = () => {
 
               {/* Tour Reviews */}
               <div>
-                <div className="text-3xl font-bold text-slate-800 mb-2">TOUR REVIEWS</div>
+                <div className="text-3xl font-bold text-slate-800 mb-2">ĐÁNH GIÁ TOUR</div>
                 <div className="w-16 h-1 bg-blue-400 mb-6" />
 
                 {/* Review 1 */}
@@ -396,7 +475,7 @@ const Home = () => {
                     className="w-16 h-16 rounded-full object-cover shadow"
                   />
                   <div>
-                    <h4 className="text-xl font-semibold text-slate-800">Canadian Rockies</h4>
+                    <h4 className="text-xl font-semibold text-slate-800">Anna</h4>
                     <p className="text-slate-600 mt-1">
                       Những điểm tham quan và hoạt động còn tuyệt hơn mong đợi. Lịch trình hợp lý, không mệt mỏi
                       và chúng tôi sẽ quay lại lần nữa!
@@ -417,7 +496,7 @@ const Home = () => {
                     className="w-16 h-16 rounded-full object-cover shadow"
                   />
                   <div>
-                    <h4 className="text-xl font-semibold text-slate-800">Lake Tahoe Adventure</h4>
+                    <h4 className="text-xl font-semibold text-slate-800">Brian</h4>
                     <p className="text-slate-600 mt-1">
                       Hướng dẫn viên nhiệt tình, thân thiện và rất chu đáo. Chuyến đi tuyệt vời, chắc chắn sẽ
                       giới thiệu cho bạn bè và quay lại lần sau.
@@ -436,17 +515,163 @@ const Home = () => {
         <div className="bg-[url('https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1920&auto=format&fit=crop')] bg-cover bg-center">
           <div className="bg-sky-900/60">
             <div className="max-w-6xl mx-auto py-12 px-3 text-center text-white">
-              <h3 className="text-3xl font-bold mb-2">JOIN THE NEWSLETTER</h3>
-              <p className="italic mb-6">To receive our best monthly deals</p>
+                <h3 className="text-3xl font-bold mb-2">THAM GIA NHÓM</h3>
+              <p className="italic mb-6">Nhận các ưu đãi tốt nhất hàng tháng</p>
               <div className="flex gap-3 max-w-3xl mx-auto">
-                <input className="flex-1 p-3 rounded-lg text-slate-800" placeholder="Your email address" />
-                <button className="bg-green-500 hover:bg-green-600 text-white px-5 rounded-lg">SUBSCRIBE</button>
+                <input className="flex-1 p-3 rounded-lg text-slate-800" placeholder="Địa chỉ email của bạn" />
+                <button className="bg-green-500 hover:bg-green-600 text-white px-5 rounded-lg">ĐĂNG KÝ</button>
               </div>
             </div>
           </div>
         </div>
       </div>
-      {/* offer */}
+
+      {/* Survey Modal - Hiển thị khi scroll đến cuối trang */}
+      {showSurvey && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
+          <div className="w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden animate-slideUp">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white px-6 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                  <FaQuestion className="text-xl" />
+                </div>
+                <h2 className="text-xl md:text-2xl font-bold">Khảo sát du lịch</h2>
+              </div>
+              <button
+                onClick={() => setShowSurvey(false)}
+                className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition text-xl leading-none"
+                aria-label="Đóng"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Form */}
+            <div className="p-6 md:p-8">
+              <p className="text-slate-600 mb-6 text-center">
+                Chúng tôi muốn biết sở thích du lịch của bạn để cải thiện dịch vụ tốt hơn
+              </p>
+              <form onSubmit={handleSurveySubmit} className="space-y-4">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="destination" className="block text-sm font-semibold text-slate-700 mb-2">
+                      Địa điểm mong muốn
+                    </label>
+                    <select
+                      id="destination"
+                      className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      value={survey.destination}
+                      onChange={handleSurveyChange}
+                      required
+                    >
+                      <option value="">Chọn địa điểm</option>
+                      <option value="Hà Nội">Hà Nội</option>
+                      <option value="TP Hồ Chí Minh">TP Hồ Chí Minh</option>
+                      <option value="Đà Nẵng">Đà Nẵng</option>
+                      <option value="Nha Trang">Nha Trang</option>
+                      <option value="Đà Lạt">Đà Lạt</option>
+                      <option value="Huế">Huế</option>
+                      <option value="Hội An">Hội An</option>
+                      <option value="Phú Quốc">Phú Quốc</option>
+                      <option value="Vũng Tàu">Vũng Tàu</option>
+                      <option value="Sa Pa">Sa Pa</option>
+                      <option value="Hạ Long">Hạ Long</option>
+                      <option value="Quy Nhơn">Quy Nhơn</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label htmlFor="stayDurationDays" className="block text-sm font-semibold text-slate-700 mb-2">
+                      Thời gian ở lại (ngày)
+                    </label>
+                    <input
+                      id="stayDurationDays"
+                      type="number"
+                      min="1"
+                      className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      value={survey.stayDurationDays}
+                      onChange={handleSurveyChange}
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="transportation" className="block text-sm font-semibold text-slate-700 mb-2">
+                      Phương tiện di chuyển
+                    </label>
+                    <select
+                      id="transportation"
+                      className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      value={survey.transportation}
+                      onChange={handleSurveyChange}
+                      required
+                    >
+                      <option value="">Chọn phương tiện</option>
+                      <option value="Ô tô">Ô tô</option>
+                      <option value="Máy bay">Máy bay</option>
+                      <option value="Tàu">Tàu</option>
+                      <option value="Thuyền">Thuyền</option>
+                      <option value="Khác">Khác</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label htmlFor="numPersons" className="block text-sm font-semibold text-slate-700 mb-2">
+                      Số lượng người
+                    </label>
+                    <input
+                      id="numPersons"
+                      type="number"
+                      min="1"
+                      className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      value={survey.numPersons}
+                      onChange={handleSurveyChange}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="travelType" className="block text-sm font-semibold text-slate-700 mb-2">
+                    Thể loại du lịch
+                  </label>
+                  <select
+                    id="travelType"
+                    className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                    value={survey.travelType}
+                    onChange={handleSurveyChange}
+                    required
+                  >
+                    <option value="">Chọn thể loại</option>
+                    <option value="Biển">Biển</option>
+                    <option value="Núi">Núi</option>
+                    <option value="Nghỉ dưỡng">Nghỉ dưỡng</option>
+                    <option value="Khám phá">Khám phá</option>
+                    <option value="Văn hóa">Văn hóa</option>
+                  </select>
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowSurvey(false)}
+                    className="flex-1 px-6 py-3 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 transition font-semibold"
+                  >
+                    Bỏ qua
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition font-semibold shadow-lg"
+                  >
+                    Gửi khảo sát
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router";
 import {
   updateUserStart,
   updateUserSuccess,
@@ -8,10 +9,12 @@ import {
   updatePassSuccess,
   updatePassFailure,
 } from "../../redux/user/userSlice";
+import { showErrorToast, showSuccessToast } from "../../utils/toast";
 
 const UpdateProfile = () => {
   const { currentUser, loading, error } = useSelector((state) => state.user);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [updateProfileDetailsPanel, setUpdateProfileDetailsPanel] =
     useState(true);
   const [formData, setFormData] = useState({
@@ -60,7 +63,7 @@ const UpdateProfile = () => {
       currentUser.address === formData.address &&
       currentUser.phone === formData.phone
     ) {
-      alert("Change atleast 1 field to update details");
+      showErrorToast("Vui lòng thay đổi ít nhất 1 thông tin trước khi cập nhật!");
       return;
     }
     try {
@@ -75,20 +78,21 @@ const UpdateProfile = () => {
       const data = await res.json();
       if (data.success === false && res.status !== 201 && res.status !== 200) {
         dispatch(updateUserSuccess());
-        dispatch(updateUserFailure(data?.messsage));
-        alert("Session Ended! Please login again");
+        dispatch(updateUserFailure(data?.message));
+        showErrorToast("Phiên đăng nhập đã kết thúc! Vui lòng đăng nhập lại.");
         navigate("/login");
         return;
       }
       if (data.success && res.status === 201) {
-        alert(data?.message);
+        showSuccessToast(data?.message);
         dispatch(updateUserSuccess(data?.user));
         return;
       }
-      alert(data?.message);
+      showErrorToast(data?.message);
       return;
     } catch (error) {
       console.log(error);
+      showErrorToast("Cập nhật thất bại! Vui lòng thử lại.");
     }
   };
 
@@ -98,11 +102,11 @@ const UpdateProfile = () => {
       updatePassword.oldpassword === "" ||
       updatePassword.newpassword === ""
     ) {
-      alert("Enter a valid password");
+      showErrorToast("Vui lòng nhập đầy đủ mật khẩu cũ và mới!");
       return;
     }
     if (updatePassword.oldpassword === updatePassword.newpassword) {
-      alert("New password can't be same!");
+      showErrorToast("Mật khẩu mới không được trùng với mật khẩu cũ!");
       return;
     }
     try {
@@ -118,12 +122,12 @@ const UpdateProfile = () => {
       if (data.success === false && res.status !== 201 && res.status !== 200) {
         dispatch(updateUserSuccess());
         dispatch(updatePassFailure(data?.message));
-        alert("Session Ended! Please login again");
+        showErrorToast("Phiên đăng nhập đã kết thúc! Vui lòng đăng nhập lại.");
         navigate("/login");
         return;
       }
       dispatch(updatePassSuccess());
-      alert(data?.message);
+      showSuccessToast(data?.message);
       setUpdatePassword({
         oldpassword: "",
         newpassword: "",
@@ -131,6 +135,7 @@ const UpdateProfile = () => {
       return;
     } catch (error) {
       console.log(error);
+      showErrorToast("Có lỗi xảy ra khi cập nhật mật khẩu!");
     }
   };
 

@@ -1,7 +1,7 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { FaTrash } from "react-icons/fa";
 import Cookies from "js-cookie";
+import { showErrorToast, showSuccessToast } from "../../utils/toast";
 
 const AllUsers = () => {
   const [allUser, setAllUsers] = useState([]);
@@ -55,13 +55,15 @@ const AllUsers = () => {
         const data = await res2.json();
         if (data?.success === false) {
           setLoading(false);
-          alert("Something went wrong!");
+          showErrorToast(data?.message || "Có lỗi xảy ra!");
           return;
         }
         setLoading(false);
-        alert(data?.message);
+        showSuccessToast(data?.message);
         getUsers();
-      } catch (error) {}
+      } catch (error) {
+        showErrorToast();
+      }
     }
   };
 
