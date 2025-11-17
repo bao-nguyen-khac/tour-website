@@ -5,6 +5,7 @@ import userRoute from "./routes/user.route.js";
 import packageRoute from "./routes/package.route.js";
 import ratingRoute from "./routes/rating.route.js";
 import bookingRoute from "./routes/booking.route.js";
+import historyRoute from "./routes/history.route.js";
 import surveyRoute from "./routes/survey.route.js";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
@@ -37,6 +38,7 @@ app.use("/api/user", userRoute);
 app.use("/api/package", packageRoute);
 app.use("/api/rating", ratingRoute);
 app.use("/api/booking", bookingRoute);
+app.use("/api/history", historyRoute);
 app.use("/api/survey", surveyRoute);
 
 if (process.env.NODE_ENV_CUSTOM === "production") {

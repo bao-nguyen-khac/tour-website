@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Cookies from "js-cookie";
 import { showErrorToast, showSuccessToast } from "../../utils/toast";
+import { formatCurrency } from "../../utils/formatCurrency";
+import { FaSearch, FaMapMarkerAlt, FaDollarSign, FaChevronDown } from "react-icons/fa";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 const token = Cookies.get("access_token");
@@ -90,126 +92,122 @@ const AllPackages = () => {
     }
   };
 
+  const filterOptions = [
+    { id: "all", label: "All" },
+    { id: "offer", label: "Offer" },
+    { id: "latest", label: "Latest" },
+    { id: "top", label: "Top" },
+  ];
+
   return (
-    <>
-      <div className="shadow-xl rounded-lg w-full flex flex-col p-5 justify-center gap-2">
-        {loading && <h1 className="text-center text-lg">Loading...</h1>}
-        {packages && (
-          <>
-            <div>
+    <div className="w-full p-4 md:p-6">
+      <div className="max-w-5xl mx-auto space-y-6">
+        <div className="bg-white rounded-3xl shadow-xl border border-white/40 p-4 md:p-6 space-y-5">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center">
+            <div className="relative flex-1">
+              <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
-                className="p-2 rounded border"
                 type="text"
-                placeholder="Search"
+                className="w-full rounded-2xl border border-slate-200 pl-11 pr-4 py-3 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Tìm kiếm tour theo tên hoặc điểm đến..."
                 value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                }}
+                onChange={(e) => setSearch(e.target.value)}
               />
             </div>
-            <div className="my-2 border-y-2 py-2">
-              <ul className="w-full flex justify-around">
-                <li
-                  className={`cursor-pointer hover:scale-95 border rounded-xl p-2 transition-all duration-300 ${
-                    filter === "all" && "bg-blue-500 text-white"
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              {filterOptions.map((option) => (
+                <button
+                  key={option.id}
+                  id={option.id}
+                  onClick={(e) => setFilter(e.target.id)}
+                  className={`px-5 py-2 rounded-2xl border transition-all ${
+                    filter === option.id
+                      ? "bg-blue-600 text-white border-blue-600 shadow-lg"
+                      : "border-slate-200 text-slate-600 hover:border-blue-200 hover:text-blue-600"
                   }`}
-                  id="all"
-                  onClick={(e) => {
-                    setFilter(e.target.id);
-                  }}
                 >
-                  All
-                </li>
-                <li
-                  className={`cursor-pointer hover:scale-95 border rounded-xl p-2 transition-all duration-300 ${
-                    filter === "offer" && "bg-blue-500 text-white"
-                  }`}
-                  id="offer"
-                  onClick={(e) => {
-                    setFilter(e.target.id);
-                  }}
-                >
-                  Offer
-                </li>
-                <li
-                  className={`cursor-pointer hover:scale-95 border rounded-xl p-2 transition-all duration-300 ${
-                    filter === "latest" && "bg-blue-500 text-white"
-                  }`}
-                  id="latest"
-                  onClick={(e) => {
-                    setFilter(e.target.id);
-                  }}
-                >
-                  Latest
-                </li>
-                <li
-                  className={`cursor-pointer hover:scale-95 border rounded-xl p-2 transition-all duration-300 ${
-                    filter === "top" && "bg-blue-500 text-white"
-                  }`}
-                  id="top"
-                  onClick={(e) => {
-                    setFilter(e.target.id);
-                  }}
-                >
-                  Top
-                </li>
-              </ul>
+                  {option.label}
+                </button>
+              ))}
             </div>
-          </>
-        )}
-        {/* packages */}
-        {packages ? (
-          packages.map((pack, i) => {
-            return (
+          </div>
+
+          <div className="space-y-4">
+            {loading && (
+              <div className="text-center py-8 text-slate-500">Đang tải dữ liệu...</div>
+            )}
+
+            {!loading && packages?.length === 0 && (
+              <div className="text-center py-10 text-slate-500 border border-dashed rounded-2xl">
+                Không tìm thấy tour nào phù hợp.
+              </div>
+            )}
+
+            {packages?.map((pack) => (
               <div
-                className="border rounded-lg w-full flex p-3 justify-between items-center hover:scale-[1.02] transition-all duration-300"
-                key={i}
+                key={pack._id}
+                className="flex flex-col gap-4 md:flex-row md:items-center p-4 rounded-2xl border border-slate-200 bg-white/80 shadow-sm hover:shadow-lg hover:border-blue-200 transition"
               >
-                <Link to={`/package/${pack._id}`}>
+                <Link to={`/package/${pack._id}`} className="flex-shrink-0">
                   <img
                     src={pack?.packageImages[0]}
-                    alt="image"
-                    className="w-20 h-20 rounded"
+                    alt={pack?.packageName}
+                    className="w-full md:w-28 h-28 object-cover rounded-xl"
                   />
                 </Link>
-                <Link to={`/package/${pack._id}`}>
-                  <p className="font-semibold hover:underline">
-                    {pack?.packageName}
+                <div className="flex-1 space-y-2">
+                  <Link to={`/package/${pack._id}`}>
+                    <h3 className="text-lg font-semibold text-slate-900 hover:text-blue-600 transition">
+                      {pack?.packageName}
+                    </h3>
+                  </Link>
+                  <p className="text-sm text-slate-500 flex items-center gap-2">
+                    <FaMapMarkerAlt className="text-blue-500" />
+                    {pack?.packageDestination}
                   </p>
-                </Link>
-                <div className="flex flex-col">
-                  <Link to={`/profile/admin/update-package/${pack._id}`}>
-                    <button
-                      disabled={loading}
-                      className="text-blue-600 hover:underline"
-                    >
-                      {loading ? "Loading..." : "Chỉnh sửa"}
-                    </button>
+                  <p className="text-sm text-slate-500 flex items-center gap-2">
+                    <FaDollarSign className="text-green-500" />
+                    {pack?.packageOffer && pack?.packageDiscountPrice
+                      ? `${formatCurrency(pack?.packageDiscountPrice)} · `
+                      : ""}
+                    <span className={pack?.packageOffer ? "line-through text-slate-400" : ""}>
+                      {formatCurrency(pack?.packagePrice)}
+                    </span>
+                  </p>
+                </div>
+                <div className="flex gap-2 w-full md:w-auto">
+                  <Link
+                    to={`/profile/admin/update-package/${pack._id}`}
+                    className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl border border-blue-200 text-blue-600 hover:bg-blue-50 transition"
+                  >
+                    <span>Chỉnh sửa</span>
                   </Link>
                   <button
                     disabled={loading}
                     onClick={() => handleDelete(pack?._id)}
-                    className="text-red-600 hover:underline"
+                    className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 transition disabled:opacity-50"
                   >
-                    {loading ? "Loading..." : "Xoá"}
+                    Xoá
                   </button>
                 </div>
               </div>
-            );
-          })
-        ) : (
-          <h1 className="text-center text-2xl">Chưa có tour nào!</h1>
-        )}
-        {showMoreBtn && (
-          <button
-            onClick={onShowMoreSClick}
-            className="text-sm bg-green-700 text-white hover:underline p-2 m-3 rounded text-center w-max"
-          >
-            Xem thêm
-          </button>
-        )}
+            ))}
+          </div>
+
+          {showMoreBtn && (
+            <div className="flex justify-center">
+              <button
+                onClick={onShowMoreSClick}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold shadow-lg hover:shadow-xl"
+              >
+                Xem thêm
+                <FaChevronDown className="text-sm" />
+              </button>
+            </div>
+          )}
+        </div>
       </div>
-    </>
+    </div>
   );
 };
 

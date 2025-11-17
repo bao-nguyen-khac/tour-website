@@ -362,7 +362,7 @@ const AddPackages = () => {
                   />
                 </div>
 
-                <div>
+                <div className="md:col-span-2">
                   <label htmlFor="packageActivities" className="block text-sm font-medium text-slate-700 mb-2 flex items-center gap-2">
                     <FaHiking className="text-blue-600" />
                     Hoạt động <span className="text-red-500">*</span>
@@ -371,7 +371,7 @@ const AddPackages = () => {
                     id="packageActivities"
                     value={formData.packageActivities}
                     onChange={handleChange}
-                    rows={3}
+                    rows={10}
                     placeholder="Liệt kê các hoạt động (mỗi hoạt động cách nhau bởi dấu -)"
                     className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition"
                     required

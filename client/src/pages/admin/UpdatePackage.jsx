@@ -9,6 +9,20 @@ import {
 import { useNavigate, useParams } from "react-router";
 import Cookies from "js-cookie";
 import { showErrorToast, showSuccessToast } from "../../utils/toast";
+import {
+  FaMapMarkerAlt,
+  FaCalendarAlt,
+  FaHotel,
+  FaBus,
+  FaUtensils,
+  FaHiking,
+  FaDollarSign,
+  FaTag,
+  FaImage,
+  FaUpload,
+  FaTrash,
+  FaArrowLeft,
+} from "react-icons/fa";
 
 const UpdatePackage = () => {
   const params = useParams();
@@ -213,217 +227,355 @@ const UpdatePackage = () => {
   };
 
   return (
-    <>
-      <div className="w-full flex flex-wrap justify-center gap-2 p-6">
-        <form
-          onSubmit={handleSubmit}
-          className="w-full sm:w-[60%] shadow-md rounded-xl p-3 gap-2 flex flex-col items-center"
-        >
-          <h1 className="text-center text-2xl font-semibold">Cập nhật tour</h1>
-          <div className="flex flex-col w-full">
-            <label htmlFor="packageName">Tên tour:</label>
-            <input
-              type="text"
-              className="border border-black rounded"
-              id="packageName"
-              value={formData?.packageName}
-              onChange={handleChange}
-            />
+    <div className="relative min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 py-10 px-4">
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute -top-20 -left-10 h-72 w-72 rounded-full bg-blue-200/30 blur-3xl" />
+        <div className="absolute bottom-10 right-0 h-80 w-80 rounded-full bg-purple-200/30 blur-3xl" />
+      </div>
+
+      <div className="relative z-10 max-w-6xl mx-auto space-y-8">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="text-sm uppercase tracking-widest text-slate-500">Chỉnh sửa tour du lịch</p>
+            <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mt-2">Cập nhật thông tin tour</h1>
+            <p className="text-slate-600 mt-2">
+              Cập nhật nhanh các thông tin quan trọng để đảm bảo tour luôn nổi bật và chính xác.
+            </p>
           </div>
-          <div className="flex flex-col w-full">
-            <label htmlFor="packageDescription">Mô tả:</label>
-            <textarea
-              type="text"
-              className="border border-black rounded resize-none w-full min-h-[100px] p-2"
-              id="packageDescription"
-              value={formData.packageDescription}
-              onChange={handleChange}
-              rows={5}
-            />
-          </div>
-          <div className="flex flex-col w-full">
-            <label htmlFor="packageDestination">Điểm đến:</label>
-            <input
-              type="text"
-              className="border border-black rounded"
-              id="packageDestination"
-              value={formData.packageDestination}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="flex flex-wrap w-full gap-2">
-            <div className="flex flex-col flex-1">
-              <label htmlFor="packageDays">Ngày:</label>
-              <input
-                type="number"
-                className="border border-black rounded"
-                id="packageDays"
-                value={formData.packageDays}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="flex flex-col flex-1">
-              <label htmlFor="packageNights">Đêm:</label>
-              <input
-                type="number"
-                className="border border-black rounded"
-                id="packageNights"
-                value={formData.packageNights}
-                onChange={handleChange}
-              />
-            </div>
-          </div>
-          <div className="flex flex-col w-full">
-            <label htmlFor="packageAccommodation">Chỗ ở:</label>
-            <textarea
-              type="text"
-              className="border border-black rounded resize-none w-full min-h-[100px] p-2"
-              id="packageAccommodation"
-              value={formData.packageAccommodation}
-              onChange={handleChange}
-              rows={5}
-            />
-          </div>
-          <div className="flex flex-col w-full">
-            <label htmlFor="packageTransportation">
-              Phương tiện di chuyển:(Đã chọn:{formData?.packageTransportation})
-            </label>
-            <select
-              className="border border-black rounded-lg"
-              id="packageTransportation"
-              onChange={handleChange}
-            >
-              <option value={formData?.packageTransportation}>Chọn</option>
-              <option>Máy bay</option>
-              <option>Tàu hỏa</option>
-              <option>Thuyền</option>
-              <option>Khác</option>
-            </select>
-          </div>
-          <div className="flex flex-col w-full">
-            <label htmlFor="packageMeals">Ăn uống:</label>
-            <textarea
-              type="text"
-              className="border border-black rounded resize-none w-full min-h-[100px] p-2"
-              id="packageMeals"
-              value={formData.packageMeals}
-              onChange={handleChange}
-              rows={5}
-            />
-          </div>
-          <div className="flex flex-col w-full">
-            <label htmlFor="packageActivities">Hoạt động:</label>
-            <textarea
-              type="text"
-              className="border border-black rounded resize-none w-full min-h-[100px] p-2"
-              id="packageActivities"
-              value={formData.packageActivities}
-              onChange={handleChange}
-              rows={5}
-            />
-          </div>
-          <div className="flex flex-col w-full">
-            <label htmlFor="packagePrice">Giá:</label>
-            <input
-              type="number"
-              className="border border-black rounded"
-              id="packagePrice"
-              value={formData.packagePrice}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="flex items-center gap-2 w-full">
-            <label htmlFor="packageOffer">Khuyến mãi:</label>
-            <input
-              type="checkbox"
-              className="border border-black rounded w-4 h-4"
-              id="packageOffer"
-              checked={formData?.packageOffer}
-              onChange={handleChange}
-            />
-          </div>
-          <div
-            className={`${
-              formData.packageOffer ? "flex flex-col w-full" : "hidden"
-            }`}
-          >
-            <label htmlFor="packageDiscountPrice">Giá khuyến mãi:</label>
-            <input
-              type="number"
-              className="border border-black rounded"
-              id="packageDiscountPrice"
-              value={formData.packageDiscountPrice}
-              onChange={handleChange}
-            />
-          </div>
-          {imageUploadError ||
-            (error && (
-              <span className="text-red-600 w-full">
-                {imageUploadError || error}
-              </span>
-            ))}
           <button
-            disabled={uploading || loading}
-            className="bg-green-700 p-3 rounded text-white hover:opacity-95 disabled:opacity-80 w-full"
+            onClick={() => navigate(-1)}
+            className="inline-flex items-center gap-2 px-5 py-3 rounded-xl border border-slate-200 text-slate-700 hover:bg-white shadow-sm bg-white/80 backdrop-blur"
           >
-            {uploading
-              ? "Đang tải lên..."
-              : loading
-              ? "Đang tải..."
-              : "Cập nhật tour"}
+            <FaArrowLeft />
+            Quay lại
           </button>
-        </form>
-        <div className="w-full sm:w-[30%] shadow-md rounded-xl p-3 h-max flex flex-col gap-2">
-          <div className="flex flex-col w-full">
-            <label htmlFor="packageImages">
-              Hình ảnh:
-              <span className="text-red-700 text-sm">
-                (kích thước hình ảnh nhỏ hơn 2mb và tối đa 5 hình ảnh)
-              </span>
+        </div>
+
+        <div className="grid lg:grid-cols-[2fr,1fr] gap-6">
+          <form
+            onSubmit={handleSubmit}
+            className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl p-6 md:p-8 space-y-8 border border-white/40"
+          >
+            {/* Basic Info */}
+            <section className="space-y-5">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center text-xl">
+                  <FaMapMarkerAlt />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold text-slate-900">Thông tin cơ bản</h2>
+                  <p className="text-sm text-slate-500">Tên tour, điểm đến và mô tả tổng quan</p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2" htmlFor="packageName">
+                    Tên tour <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="packageName"
+                    value={formData.packageName}
+                    onChange={handleChange}
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Nhập tên tour nổi bật..."
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2" htmlFor="packageDescription">
+                    Mô tả chi tiết <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    id="packageDescription"
+                    value={formData.packageDescription}
+                    onChange={handleChange}
+                    rows={10}
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                    placeholder="Viết mô tả hấp dẫn cho tour..."
+                    required
+                  />
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2" htmlFor="packageDestination">
+                      Điểm đến <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="packageDestination"
+                      value={formData.packageDestination}
+                      onChange={handleChange}
+                      className="w-full rounded-2xl border border-slate-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Ví dụ: Đà Nẵng, Phú Quốc..."
+                      required
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2" htmlFor="packageDays">
+                        <span className="flex items-center gap-2">
+                          <FaCalendarAlt className="text-blue-600" />
+                          Ngày
+                        </span>
+                      </label>
+                      <input
+                        type="number"
+                        id="packageDays"
+                        min={1}
+                        value={formData.packageDays}
+                        onChange={handleChange}
+                        className="w-full rounded-2xl border border-slate-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2" htmlFor="packageNights">
+                        <span className="flex items-center gap-2">
+                          <FaCalendarAlt className="text-blue-600" />
+                          Đêm
+                        </span>
+                      </label>
+                      <input
+                        type="number"
+                        id="packageNights"
+                        min={0}
+                        value={formData.packageNights}
+                        onChange={handleChange}
+                        className="w-full rounded-2xl border border-slate-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Services */}
+            <section className="space-y-5">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center text-xl">
+                  <FaHotel />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold text-slate-900">Dịch vụ & Tiện ích</h2>
+                  <p className="text-sm text-slate-500">Chỗ ở, phương tiện và các tiện ích đi kèm</p>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-semibold text-slate-700 mb-2" htmlFor="packageAccommodation">
+                    Chỗ ở <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    id="packageAccommodation"
+                    value={formData.packageAccommodation}
+                    onChange={handleChange}
+                    rows={3}
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                    placeholder="Thông tin khách sạn, resort..."
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2" htmlFor="packageTransportation">
+                    Phương tiện di chuyển <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    id="packageTransportation"
+                    value={formData.packageTransportation || ""}
+                    onChange={handleChange}
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                    required
+                  >
+                    <option value="">Chọn phương tiện</option>
+                    <option value="Ô tô">Ô tô</option>
+                    <option value="Máy bay">Máy bay</option>
+                    <option value="Tàu">Tàu</option>
+                    <option value="Thuyền">Thuyền</option>
+                    <option value="Khác">Khác</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2" htmlFor="packageMeals">
+                    Ăn uống <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    id="packageMeals"
+                    value={formData.packageMeals}
+                    onChange={handleChange}
+                    rows={3}
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                    placeholder="Thông tin bữa ăn trong tour..."
+                    required
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-semibold text-slate-700 mb-2" htmlFor="packageActivities">
+                    Hoạt động nổi bật <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    id="packageActivities"
+                    value={formData.packageActivities}
+                    onChange={handleChange}
+                    rows={10}
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                    placeholder="Liệt kê các hoạt động chính..."
+                    required
+                  />
+                </div>
+              </div>
+            </section>
+
+            {/* Pricing */}
+            <section className="space-y-5">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-green-100 text-green-600 flex items-center justify-center text-xl">
+                  <FaDollarSign />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold text-slate-900">Giá & Khuyến mãi</h2>
+                  <p className="text-sm text-slate-500">Cập nhật giá bán và ưu đãi</p>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2" htmlFor="packagePrice">
+                    Giá gốc (VNĐ) <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    id="packagePrice"
+                    min={500}
+                    value={formData.packagePrice}
+                    onChange={handleChange}
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500"
+                    required
+                  />
+                </div>
+                <div className="flex items-center gap-3 p-4 rounded-2xl border border-slate-200 bg-slate-50">
+                  <input
+                    type="checkbox"
+                    id="packageOffer"
+                    checked={formData.packageOffer}
+                    onChange={handleChange}
+                    className="w-5 h-5 accent-green-600"
+                  />
+                  <label htmlFor="packageOffer" className="flex items-center gap-2 text-sm font-medium text-slate-700 cursor-pointer">
+                    <FaTag className="text-orange-500" /> Áp dụng khuyến mãi
+                  </label>
+                </div>
+                {formData.packageOffer && (
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-semibold text-slate-700 mb-2" htmlFor="packageDiscountPrice">
+                      Giá khuyến mãi (VNĐ)
+                    </label>
+                    <input
+                      type="number"
+                      id="packageDiscountPrice"
+                      value={formData.packageDiscountPrice}
+                      onChange={handleChange}
+                      className="w-full rounded-2xl border border-orange-200 bg-orange-50 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-400"
+                      placeholder="Nhập giá khuyến mãi"
+                    />
+                  </div>
+                )}
+              </div>
+            </section>
+
+            {(imageUploadError || error) && (
+              <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+                {imageUploadError || error}
+              </div>
+            )}
+
+            <div className="flex flex-col gap-4 md:flex-row md:justify-end">
+              <button
+                type="button"
+                onClick={() => getPackageData()}
+                className="px-6 py-3 rounded-2xl border border-slate-200 text-slate-700 hover:bg-slate-50 transition"
+              >
+                Khôi phục dữ liệu
+              </button>
+              <button
+                type="submit"
+                disabled={uploading || loading}
+                className="px-6 py-3 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold shadow-lg hover:shadow-xl transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? "Đang cập nhật..." : "Lưu cập nhật"}
+              </button>
+            </div>
+          </form>
+
+          {/* Images */}
+          <aside className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl p-6 border border-white/40 h-fit space-y-5">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-xl">
+                <FaImage />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-slate-900">Quản lý hình ảnh</h3>
+                <p className="text-xs text-slate-500">Tối đa 5 hình, mỗi hình &lt; 2MB</p>
+              </div>
+            </div>
+
+            <label
+              htmlFor="packageImages"
+              className="block rounded-2xl border-2 border-dashed border-slate-200 p-5 text-center cursor-pointer hover:border-indigo-400 transition bg-white/40"
+            >
+              <FaUpload className="mx-auto text-3xl text-slate-400 mb-2" />
+              <p className="text-sm text-slate-600">Nhấn để chọn hình ảnh</p>
             </label>
             <input
               type="file"
-              className="border border-black rounded"
               id="packageImages"
               multiple
+              accept="image/*"
               onChange={(e) => setImages(e.target.files)}
+              className="hidden"
             />
-          </div>
-          {formData?.packageImages?.length > 0 && (
-            <div className="p-3 w-full flex flex-col justify-center">
-              {formData.packageImages.map((image, i) => {
-                return (
-                  <div
-                    key={i}
-                    className="shadow-xl rounded-lg p-1 flex flex-wrap my-2 justify-between"
-                  >
-                    <img src={image} alt="" className="h-20 w-20 rounded" />
+
+            <button
+              type="button"
+              disabled={uploading || loading || images.length === 0}
+              onClick={handleImageSubmit}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-indigo-600 text-white font-semibold shadow-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <FaUpload />
+              {uploading ? `Đang tải... (${imageUploadPercent}%)` : "Tải lên hình mới"}
+            </button>
+
+            {formData.packageImages.length > 0 && (
+              <div className="grid grid-cols-2 gap-3">
+                {formData.packageImages.map((image, index) => (
+                  <div key={index} className="relative group rounded-2xl overflow-hidden border border-slate-200 shadow">
+                    <img src={image} alt={`Tour ${index + 1}`} className="w-full h-28 object-cover" />
                     <button
-                      onClick={() => handleDeleteImage(i)}
-                      className="p-2 text-red-500 hover:cursor-pointer hover:underline"
+                      type="button"
+                      onClick={() => handleDeleteImage(index)}
+                      className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-xl opacity-0 group-hover:opacity-100 transition"
                     >
-                      Xóa
+                      <FaTrash />
                     </button>
+                    <div className="absolute bottom-0 inset-x-0 bg-black/50 text-white text-xs text-center py-1">
+                      Ảnh {index + 1}
+                    </div>
                   </div>
-                );
-              })}
-            </div>
-          )}
-          <button
-            disabled={uploading || loading || images.length === 0}
-            className="bg-green-700 p-3 rounded text-white hover:opacity-95 disabled:opacity-80 w-full"
-            type="button"
-            onClick={handleImageSubmit}
-          >
-            {uploading
-              ? `Đang tải lên...(${imageUploadPercent}%)`
-              : loading
-              ? "Đang tải..."
-              : "Tải lên hình ảnh"}
-          </button>
+                ))}
+              </div>
+            )}
+          </aside>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

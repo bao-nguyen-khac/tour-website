@@ -219,6 +219,51 @@ export const getAllUserBookings = async (req, res) => {
   }
 };
 
+// get booking history (past or cancelled) for admin
+export const getBookingHistory = async (req, res) => {
+  try {
+    const searchTerm = req?.query?.searchTerm || "";
+    const today = new Date().toISOString().split("T")[0];
+
+    const historyBookings = await Booking.find({
+      $or: [{ date: { $lt: today } }, { status: "Cancelled" }],
+    })
+      .populate("packageDetails")
+      .populate({
+        path: "buyer",
+        match: {
+          $or: [
+            { username: { $regex: searchTerm, $options: "i" } },
+            { email: { $regex: searchTerm, $options: "i" } },
+          ],
+        },
+      })
+      .sort({ date: -1 });
+
+    const filtered = historyBookings.filter(
+      (booking) => booking?.buyer !== null && booking?.packageDetails !== null
+    );
+
+    if (!filtered.length) {
+      return res.status(200).send({
+        success: false,
+        message: "Không có lịch sử đặt tour nào",
+      });
+    }
+
+    return res.status(200).send({
+      success: true,
+      bookings: filtered,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({
+      success: false,
+      message: "Đã xảy ra lỗi khi tải lịch sử đặt tour!",
+    });
+  }
+};
+
 //delete booking history
 export const deleteBookingHistory = async (req, res) => {
   try {

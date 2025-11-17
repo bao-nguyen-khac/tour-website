@@ -195,10 +195,10 @@ const Package = () => {
   }, [params.id, currentUser]);
 
   const tabList = [
-    { id: "DETAILS", label: "DETAILS" },
-    { id: "ITINERARY", label: "ITINERARY" },
-    { id: "LOCATION", label: "LOCATION" },
-    { id: "PHOTOS", label: "PHOTOS" },
+    { id: "DETAILS", label: "Chi tiết" },
+    { id: "ITINERARY", label: "Lịch trình" },
+    { id: "LOCATION", label: "Địa điểm" },
+    { id: "PHOTOS", label: "Hình ảnh" },
   ];
 
   const handleBookingClick = () => {
@@ -362,7 +362,7 @@ const Package = () => {
                 </h4>
                 <p>{packageData?.packageMeals || "Đang cập nhật thông tin"}</p>
               </div>
-              <div className="p-4 rounded-xl border bg-white md:col-span-2">
+              {/* <div className="p-4 rounded-xl border bg-white md:col-span-2">
                 <h4 className="text-lg font-semibold mb-2">Hoạt động</h4>
                 <div className="bg-gray-50 p-4 rounded-lg border-l-4 border-green-500">
                   {activitiesList.length > 0 ? (
@@ -381,7 +381,7 @@ const Package = () => {
                     </p>
                   )}
                 </div>
-              </div>
+              </div> */}
               <div className="p-4 rounded-xl border bg-white md:col-span-2">
                 <h4 className="text-lg font-semibold mb-2 flex items-center gap-2">
                   <FaBus />
@@ -404,23 +404,22 @@ const Package = () => {
                 nghiệm văn hóa bản địa. Bạn có thể linh hoạt thay đổi theo sở thích
                 của mình.
               </p>
-              <div className="space-y-4">
-                {itineraryDays.map((item) => (
-                  <div
-                    key={item.day}
-                    className="flex flex-col md:flex-row md:items-start gap-3 border-l-4 border-blue-500 pl-4 py-2 bg-white rounded-md shadow-sm"
-                  >
-                    <div className="min-w-[110px]">
-                      <span className="text-xs uppercase tracking-wide text-blue-600">
-                        Ngày {item.day}
-                      </span>
-                      <p className="text-base font-semibold text-slate-800">
-                        {item.title}
-                      </p>
+              <div className="bg-gray-50 p-4 rounded-lg border-l-4 border-green-500">
+                {activitiesList.length > 0 ? (
+                  activitiesList.map((activity, index) => (
+                    <div
+                      key={index}
+                      className="flex items-start mb-2 last:mb-0"
+                    >
+                      <span className="text-green-600 mr-2 mt-1">•</span>
+                      <p className="text-gray-700 flex-1">{activity}</p>
                     </div>
-                    <p className="text-slate-600 flex-1">{item.description}</p>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className="text-slate-500">
+                    Hoạt động sẽ được cập nhật sớm.
+                  </p>
+                )}
               </div>
             </div>
             <div className="rounded-xl border bg-white p-4 md:p-5 shadow-sm">

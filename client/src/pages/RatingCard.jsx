@@ -1,121 +1,70 @@
 import { Rating } from "@mui/material";
-import React from "react";
-import { FaArrowDown, FaArrowUp } from "react-icons/fa";
+import React, { useState } from "react";
 import defaultProfileImg from "../assets/images/profile.png";
 
-const RatingCard = ({ packageRatings }) => {
+const RatingCard = ({ packageRatings = [] }) => {
+  const [expandedId, setExpandedId] = useState(null);
+
+  if (!packageRatings.length) {
+    return (
+      <div className="text-center text-slate-500 py-8">
+        Chưa có đánh giá nào được hiển thị.
+      </div>
+    );
+  }
+
+  const toggleExpand = (id) => {
+    setExpandedId((prev) => (prev === id ? null : id));
+  };
+
   return (
     <>
-      {packageRatings &&
-        packageRatings.map((rating, i) => {
-          return (
-            <div
-              key={i}
-              className="main relative w-full rounded-lg border p-3 gap-2 flex flex-col"
-              id="main"
-            >
-              <div className="flex gap-2 items-center">
-                <img
-                  src={rating.userProfileImg || defaultProfileImg}
-                  alt={rating.username[0]}
-                  className="border w-6 h-6 border-black rounded-[50%]"
-                />
-                <p className="font-semibold">{rating.username}</p>
-              </div>
-              <Rating
-                value={rating.rating || 0}
-                readOnly
-                size="small"
-                precision={0.1}
+      {packageRatings.map((rating) => {
+        const reviewText = rating?.review || "";
+        const isLongReview = reviewText.length > 180;
+        const isExpanded = expandedId === rating?._id;
+        const displayedReview =
+          reviewText === ""
+            ? rating?.rating < 3
+              ? "Trải nghiệm chưa tốt, cần cải thiện."
+              : "Chuyến đi tuyệt vời!"
+            : isExpanded || !isLongReview
+            ? reviewText
+            : `${reviewText.substring(0, 180)}...`;
+
+        return (
+          <div
+            key={rating?._id || rating?.createdAt}
+            className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4 flex flex-col gap-3"
+          >
+            <div className="flex items-center gap-3">
+              <img
+                src={rating?.userProfileImg || defaultProfileImg}
+                alt={rating?.username || "Người dùng"}
+                className="w-12 h-12 rounded-full object-cover border border-slate-200"
               />
-              {/* review */}
-              <p className="break-all">
-                <span
-                  className="break-all"
-                  id={rating.review.length > 90 ? "review-text" : "none"}
-                >
-                  {rating.review !== ""
-                    ? rating.review.length > 90
-                      ? rating.review.substring(0, 45)
-                      : rating.review
-                    : rating.rating < 3
-                    ? "Không tệ"
-                    : "Tốt"}
-                </span>
-                {rating.review.length > 90 && (
-                  <>
-                    <button
-                      id="more-btn"
-                      className={`m-1 font-semibold items-center gap-1 ${
-                        rating.review.length > 90 ? "flex" : "hidden"
-                      }`}
-                      onClick={() => {
-                        document.getElementById("popup").style.display =
-                          "block";
-                        document.getElementById("popup").style.zIndex = "99";
-                      }}
-                    >
-                      Xem thêm
-                      <FaArrowDown />
-                    </button>
-                  </>
-                )}
-              </p>
-              {/* full review */}
-              {rating.review.length > 90 && (
-                <div
-                  className="hidden bg-white absolute left-0 top-0 popup"
-                  id="popup"
-                >
-                  <div
-                    key={i}
-                    className="relative w-full rounded-lg border p-3 gap-2 flex flex-col"
-                  >
-                    <div className="flex gap-2 items-center">
-                      <img
-                        src={rating.userProfileImg || defaultProfileImg}
-                        alt={rating.username[0]}
-                        className="border w-6 h-6 border-black rounded-[50%]"
-                      />
-                      <p className="font-semibold">{rating.username}</p>
-                    </div>
-                    <Rating
-                      value={rating.rating || 0}
-                      readOnly
-                      size="small"
-                      precision={0.1}
-                    />
-                    {/* review */}
-                    <p className="break-words">
-                      <span
-                        className="break-words"
-                        id={rating.review.length > 90 ? "review-text" : "none"}
-                      >
-                        {rating.review}
-                      </span>
-                      {rating.review.length > 90 && (
-                        <>
-                          <button
-                            id="less-btn"
-                            className={`m-1 font-semibold flex items-center gap-1`}
-                            onClick={() => {
-                              document.getElementById("popup").style.display =
-                                "none";
-                            }}
-                          >
-                            Thu gọn
-                            <FaArrowUp />
-                          </button>
-                        </>
-                      )}
-                    </p>
-                  </div>
-                </div>
-              )}
-              {/* full review */}
+              <div>
+                <p className="font-semibold text-slate-900">{rating?.username || "Ẩn danh"}</p>
+                <p className="text-xs text-slate-500">{rating?.createdAt ? new Date(rating.createdAt).toLocaleDateString("vi-VN") : ""}</p>
+              </div>
             </div>
-          );
-        })}
+
+            <Rating value={rating?.rating || 0} readOnly size="small" precision={0.1} />
+
+            <p className="text-sm text-slate-600 leading-relaxed">{displayedReview}</p>
+
+            {isLongReview && (
+              <button
+                type="button"
+                onClick={() => toggleExpand(rating?._id)}
+                className="self-start text-sm font-semibold text-blue-600 hover:text-blue-500"
+              >
+                {isExpanded ? "Thu gọn" : "Xem thêm"}
+              </button>
+            )}
+          </div>
+        );
+      })}
     </>
   );
 };

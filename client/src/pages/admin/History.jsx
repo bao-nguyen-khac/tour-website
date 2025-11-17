@@ -18,7 +18,9 @@ const History = () => {
     try {
       setLoading(true);
       const res = await fetch(
-        `${apiUrl}/api/history/get-all-history`,
+        `${apiUrl}/api/history/get-all-history?searchTerm=${encodeURIComponent(
+          search
+        )}`,
         {
           headers: {
             ...(token ? { Authorization: `Bearer ${token}` } : {}),

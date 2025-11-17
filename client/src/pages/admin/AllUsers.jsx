@@ -1,7 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { FaTrash } from "react-icons/fa";
+import React, { useEffect, useMemo, useState } from "react";
 import Cookies from "js-cookie";
 import { showErrorToast, showSuccessToast } from "../../utils/toast";
+import {
+  FaTrash,
+  FaSearch,
+  FaUser,
+  FaEnvelope,
+  FaPhone,
+  FaMapMarkerAlt,
+  FaShieldAlt,
+} from "react-icons/fa";
 
 const AllUsers = () => {
   const [allUser, setAllUsers] = useState([]);
@@ -67,69 +75,112 @@ const AllUsers = () => {
     }
   };
 
+  const stats = useMemo(() => {
+    const total = allUser?.length || 0;
+    const admins = allUser?.filter((user) => user?.user_role === 1).length || 0;
+    const members = total - admins;
+    const verified = allUser?.filter((user) => user?.emailVerified).length || 0;
+
+    return [
+      { label: "Tổng người dùng", value: total },
+      { label: "Quản trị viên", value: admins },
+      { label: "Khách hàng", value: members },
+      { label: "Email xác thực", value: verified },
+    ];
+  }, [allUser]);
+
   return (
-    <>
-      <div className="w-full flex justify-center">
-        <div className="w-full shadow-lg rounded-lg p-2">
-          <h1 className="text-2xl text-center">
-            {loading ? "Loading..." : "Tất cả người dùng"}
-          </h1>
-          {error && <h1 className="text-center text-2xl">{error}</h1>}
-          <div>
-            <input
-              type="text"
-              className="my-3 p-2 rounded-lg border"
-              placeholder="Search name,email or phone..."
-              onChange={(e) => {
-                setSearch(e.target.value);
-              }}
-            />
-            <h2 className="text-xl font-semibold mb-2 ml-2">
-              Tổng người dùng: {allUser.length ? allUser?.length : "Loading..."}
-            </h2>
+    <div className="w-full p-4 md:p-6">
+      <div className="max-w-5xl mx-auto space-y-6">
+        <div className="bg-white rounded-3xl shadow-xl border border-white/40 p-5 space-y-6">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="text-sm uppercase tracking-widest text-slate-500">Quản lý người dùng</p>
+              <h1 className="text-3xl font-bold text-slate-900">Danh sách người dùng</h1>
+            </div>
+            <div className="relative w-full md:w-80">
+              <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Tìm kiếm tên, email, số điện thoại..."
+                className="w-full pl-11 pr-4 py-3 rounded-2xl border border-slate-200 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
           </div>
-          {allUser ? (
-            allUser.map((user, i) => {
-              return (
-                <div
-                  className="flex overflow-auto justify-between p-2 px-3 border-y-2 gap-3"
-                  key={i}
-                >
-                  <h5 className="flex flex-1 justify-center items-center text-ellipsis p-[5px]">
-                    {user._id}
-                  </h5>
-                  <h5 className="flex flex-1 justify-center items-center text-ellipsis p-[5px]">
-                    {user.username}
-                  </h5>
-                  <h5 className="flex flex-1 justify-center items-center text-ellipsis p-[5px]">
-                    {user.email}
-                  </h5>
-                  <h5 className="flex flex-1 justify-center items-center text-ellipsis p-[5px]">
-                    {user.address}
-                  </h5>
-                  <h5 className="flex flex-1 justify-center items-center text-ellipsis p-[5px]">
-                    {user.phone}
-                  </h5>
-                  <div className="flex flex-col flex-1 justify-center items-center p-[5px]">
-                    <button
-                      disabled={loading}
-                      className="p-2 text-red-500 hover:cursor-pointer hover:scale-125 disabled:opacity-80"
-                      onClick={() => {
-                        handleUserDelete(user._id);
-                      }}
-                    >
-                      <FaTrash />
-                    </button>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {stats.map((item) => (
+              <div key={item.label} className="p-4 rounded-2xl border border-slate-100 bg-slate-50">
+                <p className="text-sm text-slate-500">{item.label}</p>
+                <p className="text-2xl font-bold text-slate-900 mt-1">{item.value}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="space-y-4">
+            {loading && <div className="text-center text-slate-500 py-8">Đang tải người dùng...</div>}
+
+            {!loading && allUser?.length === 0 && (
+              <div className="text-center text-slate-500 py-10 border border-dashed rounded-2xl">
+                Không tìm thấy người dùng nào.
+              </div>
+            )}
+
+            {allUser?.map((user) => (
+              <div
+                key={user._id}
+                className="flex flex-col md:flex-row md:items-center gap-4 p-4 rounded-2xl border border-slate-200 bg-white shadow-sm"
+              >
+                <div className="flex items-center gap-3 flex-1">
+                  <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-500 overflow-hidden">
+                    {user?.avatar ? (
+                      <img src={user.avatar} alt="avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      <FaUser className="text-2xl" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-lg font-semibold text-slate-900">{user.username}</p>
+                    <p className="text-sm text-slate-500 flex items-center gap-1">
+                      <FaShieldAlt className="text-blue-500" />
+                      {user?.user_role === 1 ? "Admin" : "Khách hàng"}
+                    </p>
                   </div>
                 </div>
-              );
-            })
-          ) : (
-            <></>
-          )}
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 flex-1 text-sm">
+                  <p className="flex items-center gap-2 text-slate-600">
+                    <FaEnvelope className="text-slate-400" />
+                    {user.email}
+                  </p>
+                  <p className="flex items-center gap-2 text-slate-600">
+                    <FaPhone className="text-slate-400" />
+                    {user.phone || "Chưa cập nhật"}
+                  </p>
+                  <p className="flex items-center gap-2 text-slate-600 sm:col-span-2">
+                    <FaMapMarkerAlt className="text-slate-400" />
+                    {user.address || "Chưa cập nhật"}
+                  </p>
+                </div>
+
+                <div className="flex justify-end">
+                  <button
+                    disabled={loading}
+                    onClick={() => handleUserDelete(user._id)}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl border border-red-200 text-red-600 hover:bg-red-50 transition disabled:opacity-50"
+                  >
+                    <FaTrash />
+                    Xóa
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
