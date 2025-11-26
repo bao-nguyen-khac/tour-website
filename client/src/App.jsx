@@ -16,6 +16,7 @@ import RatingsPage from "./pages/RatingsPage";
 import Booking from "./pages/user/Booking";
 import Search from "./pages/Search";
 import Recommendations from "./pages/Recommendations";
+import Blog from "./pages/Blog";
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -52,6 +53,7 @@ const App = () => {
           <Route path="admin/update-package/:id" element={<UpdatePackage />} />
         </Route>
         <Route path="/about" element={<About />} />
+        <Route path="/blog" element={<Blog />} />
         <Route path="/package/:id" element={<Package />} />
         <Route path="/package/ratings/:id" element={<RatingsPage />} />
         {/* checking user auth before booking */}

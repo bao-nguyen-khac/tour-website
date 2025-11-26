@@ -112,6 +112,16 @@ const Header = () => {
           >
             Tours
           </Link>
+          <Link
+            to="/blog"
+            className={`relative transition-all duration-300 pb-1 ${
+              location.pathname === "/blog"
+                ? "text-blue-300 border-b-2 border-blue-400"
+                : "hover:text-blue-300 hover:border-b-2 hover:border-blue-400"
+            }`}
+          >
+            Blog dữ liệu
+          </Link>
           <Link 
             to="/about" 
             className={`relative transition-all duration-300 pb-1 ${
