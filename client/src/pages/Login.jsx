@@ -15,7 +15,7 @@ const Login = () => {
   const navigate = useNavigate();
   const { loading, error } = useSelector((state) => state.user);
   const [formData, setFormData] = useState({
-    email: "",
+    phone: "",
     password: "",
   });
   const [popup, setPopup] = useState({ show: false, message: "", success: false });
@@ -121,19 +121,19 @@ const Login = () => {
             <form onSubmit={handleSubmit} className="mt-8 space-y-6">
               <div className="space-y-2">
                 <label
-                  htmlFor="email"
+                  htmlFor="phone"
                   className="text-sm font-semibold uppercase tracking-wide text-slate-600"
                 >
-                  Email
+                  Số điện thoại
                 </label>
                 <input
-                  type="email"
-                  id="email"
-                  value={formData.email}
+                  type="tel"
+                  id="phone"
+                  value={formData.phone}
                   onChange={handleChange}
                   required
-                  autoComplete="email"
-                  placeholder="you@example.com"
+                  autoComplete="tel"
+                  placeholder="0123456789"
                   className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 shadow-sm transition focus:border-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-200"
                 />
               </div>

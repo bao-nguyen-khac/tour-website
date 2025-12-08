@@ -67,18 +67,11 @@ const Recommendations = () => {
             <label className="whitespace-nowrap font-semibold">Địa điểm:</label>
             <select id="destination" value={filters.destination} onChange={handleChange} className="p-3 border rounded-lg w-full">
               <option value="">Tất cả</option>
-              <option value="Hà Nội">Hà Nội</option>
-              <option value="TP Hồ Chí Minh">TP Hồ Chí Minh</option>
               <option value="Đà Nẵng">Đà Nẵng</option>
-              <option value="Nha Trang">Nha Trang</option>
-              <option value="Đà Lạt">Đà Lạt</option>
               <option value="Huế">Huế</option>
               <option value="Hội An">Hội An</option>
-              <option value="Phú Quốc">Phú Quốc</option>
-              <option value="Vũng Tàu">Vũng Tàu</option>
-              <option value="Sa Pa">Sa Pa</option>
-              <option value="Hạ Long">Hạ Long</option>
-              <option value="Quy Nhơn">Quy Nhơn</option>
+              <option value="Đà Lạt">Đà Lạt</option>
+              <option value="Nha Trang">Nha Trang</option>
             </select>
           </div>
           <div className="flex items-center gap-2">

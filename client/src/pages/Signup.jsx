@@ -4,7 +4,6 @@ import axios from "axios";
 import { showErrorToast, showSuccessToast } from "../utils/toast";
 import {
   FaUser,
-  FaEnvelope,
   FaLock,
   FaMapMarkerAlt,
   FaPhone,
@@ -18,7 +17,6 @@ const Signup = () => {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
-    email: "",
     password: "",
     address: "",
     phone: "",
@@ -35,7 +33,7 @@ const Signup = () => {
     e.preventDefault();
     
     // Validation
-    if (!formData.username || !formData.email || !formData.password || !formData.address || !formData.phone) {
+    if (!formData.username || !formData.password || !formData.address || !formData.phone) {
       showErrorToast("Vui lòng điền đầy đủ thông tin!");
       return;
     }
@@ -158,30 +156,6 @@ const Signup = () => {
                       required
                       placeholder="Nhập tên người dùng"
                       value={formData.username}
-                      onChange={handleChange}
-                      className="w-full rounded-xl border border-white/20 bg-white/10 px-4 py-3 pl-12 text-white placeholder-slate-400 focus:border-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 transition-all"
-                    />
-                  </div>
-                </div>
-
-                {/* Email */}
-                <div>
-                  <label
-                    htmlFor="email"
-                    className="mb-2 block text-sm font-semibold text-white"
-                  >
-                    Email
-                  </label>
-                  <div className="relative">
-                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-                      <FaEnvelope className="text-slate-400" />
-                    </div>
-                    <input
-                      type="email"
-                      id="email"
-                      required
-                      placeholder="your.email@example.com"
-                      value={formData.email}
                       onChange={handleChange}
                       className="w-full rounded-xl border border-white/20 bg-white/10 px-4 py-3 pl-12 text-white placeholder-slate-400 focus:border-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 transition-all"
                     />

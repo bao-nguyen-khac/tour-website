@@ -32,16 +32,12 @@ const Home = () => {
 
   const destinations = [
     {
-      name: "Hà Nội",
-      img: "https://images.pexels.com/photos/34621330/pexels-photo-34621330.jpeg",
+      name: "Hội An",
+      img: "https://daivietourist.vn/wp-content/uploads/2025/05/gioi-thieu-ve-pho-co-hoi-an-8.jpg",
     },
     {
       name: "Đà Nẵng",
       img: "https://cdn-media.sforum.vn/storage/app/media/ctvseo_MH/%E1%BA%A3nh%20%C4%91%E1%BA%B9p%20%C4%91%C3%A0%20n%E1%BA%B5ng/anh-dep-da-nang-thumb.jpg",
-    },
-    {
-      name: "Nha Trang",
-      img: "https://vcdn1-vnexpress.vnecdn.net/2021/03/22/NhaTrang-KhoaTran-27-1616120145.jpg?w=1200&h=0&q=100&dpr=1&fit=crop&s=9BMNnjV_o665_kwWTgfOSQ",
     },
     {
       name: "Huế",

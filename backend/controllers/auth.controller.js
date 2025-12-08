@@ -12,28 +12,47 @@ export const signupController = async (req, res) => {
   try {
     const { username, email, password, address, phone } = req.body;
 
-    if (!username || !email || !password || !address || !phone) {
+    if (!username || !password || !address || !phone) {
       return res.status(200).send({
         success: false,
-        message: 'Tất cả các trường đều bắt buộc!',
+        message: 'Các trường bắt buộc: username, password, address, phone',
       });
     }
 
-    const userExists = await User.findOne({ email });
-    if (userExists) {
+    const normalizedPhone = phone?.trim();
+    if (!normalizedPhone) {
       return res.status(200).send({
         success: false,
-        message: 'Người dùng đã tồn tại, vui lòng đăng nhập',
+        message: 'Số điện thoại không hợp lệ',
       });
+    }
+
+    const phoneExists = await User.findOne({ phone: normalizedPhone });
+    if (phoneExists) {
+      return res.status(200).send({
+        success: false,
+        message: 'Số điện thoại đã được đăng ký, vui lòng đăng nhập',
+      });
+    }
+
+    if (email) {
+      const normalizedEmail = email.trim().toLowerCase();
+      const emailExists = await User.findOne({ email: normalizedEmail });
+      if (emailExists) {
+        return res.status(200).send({
+          success: false,
+          message: 'Email đã được đăng ký, vui lòng dùng email khác hoặc để trống',
+        });
+      }
     }
 
     const hashedPassword = bcryptjs.hashSync(password, 10);
     const newUser = new User({
       username,
-      email,
+      email: email?.trim() || undefined,
       password: hashedPassword,
       address,
-      phone,
+      phone: normalizedPhone,
     });
 
     await newUser.save();
@@ -54,27 +73,28 @@ export const signupController = async (req, res) => {
 //login controller
 export const loginController = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { phone, password } = req.body;
 
-    if (!email || !password) {
+    if (!phone || !password) {
       return res.status(200).send({
         success: false,
-        message: 'Tất cả các trường đều bắt buộc!',
+        message: 'Các trường bắt buộc: phone, password',
       });
     }
 
-    const validUser = await User.findOne({ email });
+    const normalizedPhone = phone.trim();
+    const validUser = await User.findOne({ phone: normalizedPhone });
     if (!validUser) {
       return res.status(404).send({
         success: false,
-        message: 'Không tìm thấy người dùng!',
+        message: 'Không tìm thấy người dùng với số điện thoại này!',
       });
     }
     const validPassword = bcryptjs.compareSync(password, validUser.password);
     if (!validPassword) {
       return res.status(200).send({
         success: false,
-        message: 'Email hoặc mật khẩu không hợp lệ',
+        message: 'Số điện thoại hoặc mật khẩu không hợp lệ',
       });
     }
 

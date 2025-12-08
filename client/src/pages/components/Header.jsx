@@ -202,18 +202,11 @@ const Header = () => {
                       required
                     >
                       <option value="">Chọn địa điểm</option>
-                      <option value="Hà Nội">Hà Nội</option>
-                      <option value="TP Hồ Chí Minh">TP Hồ Chí Minh</option>
                       <option value="Đà Nẵng">Đà Nẵng</option>
-                      <option value="Nha Trang">Nha Trang</option>
-                      <option value="Đà Lạt">Đà Lạt</option>
                       <option value="Huế">Huế</option>
                       <option value="Hội An">Hội An</option>
-                      <option value="Phú Quốc">Phú Quốc</option>
-                      <option value="Vũng Tàu">Vũng Tàu</option>
-                      <option value="Sa Pa">Sa Pa</option>
-                      <option value="Hạ Long">Hạ Long</option>
-                      <option value="Quy Nhơn">Quy Nhơn</option>
+                      <option value="Đà Lạt">Đà Lạt</option>
+                      <option value="Nha Trang">Nha Trang</option>
                     </select>
                   </div>
 
