@@ -5,6 +5,7 @@ import {
   getAllRatings,
   giveRating,
   ratingGiven,
+  getLatestRatings,
 } from "../controllers/rating.controller.js";
 
 const router = express.Router();
@@ -20,5 +21,8 @@ router.get("/rating-given/:userId/:packageId", requireSignIn, ratingGiven);
 
 //get all ratings by package id
 router.get("/get-ratings/:id/:limit", getAllRatings);
+
+//get latest ratings from all packages
+router.get("/latest-ratings", getLatestRatings);
 
 export default router;

@@ -11,6 +11,14 @@ import {
   FaArrowRight,
   FaRoute,
 } from "react-icons/fa";
+import {
+  BarChart,
+  Bar,
+  ResponsiveContainer,
+  Tooltip,
+  YAxis,
+  XAxis,
+} from "recharts";
 import { formatCurrency } from "../utils/formatCurrency";
 import { showErrorToast } from "../utils/toast";
 
@@ -28,6 +36,21 @@ const InfoPill = ({ label, value }) => (
     <span className="text-slate-900">{value}</span>
   </div>
 );
+
+const shortActivityName = (name) => {
+  console.log('🤖 ~ shortActivityName ~ name:', name);
+  const result = name
+    // Cắt "14:00 - 16:00:" hoặc "14:00 – 16:00:"
+    .replace(
+      /^\s*\d{1,2}:\d{2}\s*[–-]\s*\d{1,2}:\d{2}\s*:\s*/u,
+      ""
+    )
+    // Cắt "08:00:" hoặc "08:00 -"
+    .replace(/^\s*\d{1,2}:\d{2}\s*[:–-]\s*/u, "")
+    .trim();
+  console.log('🤖 ~ shortActivityName ~ result:', result);
+  return result;
+};
 
 const Blog = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -108,6 +131,14 @@ const Blog = () => {
   const comparison = blogData?.comparison;
   const itineraryInsights = blogData?.itineraryInsights;
   const packages = blogData?.packages || [];
+
+  const activityChartData = useMemo(() => {
+    if (!itineraryInsights?.topHighlights?.length) return [];
+    return itineraryInsights.topHighlights.map((item) => ({
+      name: item.highlight,
+      coverage: item.coverage,
+    }));
+  }, [itineraryInsights]);
 
   const highlightCards = useMemo(() => {
     if (!summary) return [];
@@ -375,6 +406,49 @@ const Blog = () => {
                   </div>
                 ))}
             </div>
+
+            {activityChartData.length > 0 && (
+              <div className="bg-white rounded-3xl border border-slate-100 shadow-xl p-8">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+                  <div>
+                    <p className="text-xs font-semibold text-emerald-600 uppercase tracking-[0.3em]">
+                      Phân tích hoạt động
+                    </p>
+                    <h2 className="text-2xl font-bold text-slate-900 mt-2">
+                      Mức độ phổ biến của các hoạt động trong tour
+                    </h2>
+                    <p className="text-sm text-slate-500">
+                      Biểu đồ thể hiện % số tour tại điểm đến này có nhắc đến từng hoạt động trong
+                      lịch trình. Hoạt động càng cao thì càng "thịnh hành".
+                    </p>
+                  </div>
+                </div>
+                <div className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={activityChartData}>
+                      <Tooltip
+                        formatter={(value) => [`${value}% tour`, "Bao phủ"]}
+                        labelFormatter={(label) => `Hoạt động: ${label}`}
+                      />
+                      <YAxis
+                        dataKey="coverage"
+                        tickFormatter={(v) => `${v}%`}
+                        width={40}
+                      />
+                      <XAxis
+                        dataKey="name"
+                        interval={0}
+                        angle={-20}
+                        textAnchor="end"
+                        height={150}
+                        tickFormatter={(label) => shortActivityName(label)}
+                      />
+                      <Bar dataKey="coverage" fill="#10b981" radius={[6, 6, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            )}
 
             {itineraryInsights && (
               <div className="bg-white rounded-3xl border border-slate-100 shadow-xl p-8 space-y-8">

@@ -14,6 +14,8 @@ const Home = () => {
   const [topPackages, setTopPackages] = useState([]);
   const [latestPackages, setLatestPackages] = useState([]);
   const [offerPackages, setOfferPackages] = useState([]);
+  const [latestRatings, setLatestRatings] = useState([]);
+  const [loadingRatings, setLoadingRatings] = useState(false);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [quickSearch, setQuickSearch] = useState({
@@ -42,6 +44,10 @@ const Home = () => {
     {
       name: "Huế",
       img: "https://cdn-media.sforum.vn/storage/app/media/ctvseo_MH/%E1%BA%A3nh%20%C4%91%E1%BA%B9p%20Hu%E1%BA%BF/anh-dep-hue-1.jpg",
+    },
+    {
+      name: "Nha Trang",
+      img: "https://baokhanhhoa.vn/file/e7837c02857c8ca30185a8c39b582c03/012025/z6223362576777_15a21ef00a73b25851a3972d86795475_20250113104122.jpg",
     },
   ];
   // remove survey form and related state/handlers
@@ -88,6 +94,25 @@ const Home = () => {
       }
     } catch (error) {
       console.log(error);
+    }
+  }, [apiUrl, token]);
+
+  const getLatestRatings = useCallback(async () => {
+    try {
+      setLoadingRatings(true);
+      const res = await fetch(`${apiUrl}/api/rating/latest-ratings?limit=4`, {
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+      const data = await res.json();
+      if (data?.success && Array.isArray(data?.ratings)) {
+        setLatestRatings(data.ratings);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoadingRatings(false);
     }
   }, [apiUrl, token]);
 
@@ -150,7 +175,8 @@ const Home = () => {
     getTopPackages();
     getLatestPackages();
     getOfferPackages();
-  }, []);
+    getLatestRatings();
+  }, [getTopPackages, getLatestPackages, getOfferPackages, getLatestRatings]);
 
   // Scroll detection để hiển thị survey
   useEffect(() => {
@@ -463,47 +489,46 @@ const Home = () => {
                 <div className="text-3xl font-bold text-slate-800 mb-2">ĐÁNH GIÁ TOUR</div>
                 <div className="w-16 h-1 bg-blue-400 mb-6" />
 
-                {/* Review 1 */}
-                <div className="flex gap-4 mb-8">
-                  <img
-                    src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=200&auto=format&fit=crop"
-                    alt="Jessica"
-                    className="w-16 h-16 rounded-full object-cover shadow"
-                  />
-                  <div>
-                    <h4 className="text-xl font-semibold text-slate-800">Anna</h4>
-                    <p className="text-slate-600 mt-1">
-                      Những điểm tham quan và hoạt động còn tuyệt hơn mong đợi. Lịch trình hợp lý, không mệt mỏi
-                      và chúng tôi sẽ quay lại lần nữa!
-                    </p>
-                    <div className="mt-2 text-yellow-400 flex">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <FaStar key={i} />
-                      ))}
-                    </div>
-                  </div>
-                </div>
+                {loadingRatings && (
+                  <div className="text-center text-slate-500 py-4">Đang tải đánh giá...</div>
+                )}
 
-                {/* Review 2 */}
-                <div className="flex gap-4">
-                  <img
-                    src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200&auto=format&fit=crop"
-                    alt="John"
-                    className="w-16 h-16 rounded-full object-cover shadow"
-                  />
-                  <div>
-                    <h4 className="text-xl font-semibold text-slate-800">Brian</h4>
-                    <p className="text-slate-600 mt-1">
-                      Hướng dẫn viên nhiệt tình, thân thiện và rất chu đáo. Chuyến đi tuyệt vời, chắc chắn sẽ
-                      giới thiệu cho bạn bè và quay lại lần sau.
-                    </p>
-                    <div className="mt-2 text-yellow-400 flex">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <FaStar key={`r2-${i}`} />
-                      ))}
-                    </div>
-                  </div>
-                </div>
+                {!loadingRatings && latestRatings.length === 0 && (
+                  <div className="text-center text-slate-500 py-4">Chưa có đánh giá nào.</div>
+                )}
+
+                {!loadingRatings && latestRatings.length > 0 && (
+                  <>
+                    {latestRatings.map((rating, index) => (
+                      <div key={rating._id || index} className={`flex gap-4 ${index < latestRatings.length - 1 ? 'mb-8' : ''}`}>
+                        <img
+                          src={rating.userProfileImg || "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"}
+                          alt={rating.username || "Người dùng"}
+                          className="w-16 h-16 rounded-full object-cover shadow"
+                        />
+                        <div>
+                          <h4 className="text-xl font-semibold text-slate-800">
+                            {rating.username || "Ẩn danh"}
+                          </h4>
+                          <p className="text-sm text-slate-500 mb-1">
+                            {rating.packageName || "Tour"} • {rating.packageDestination || ""}
+                          </p>
+                          <p className="text-slate-600 mt-1">
+                            {rating.review || (rating.rating >= 4 ? "Chuyến đi tuyệt vời!" : "Trải nghiệm ổn.")}
+                          </p>
+                          <div className="mt-2 text-yellow-400 flex">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                              <FaStar
+                                key={`rating-${rating._id}-${i}`}
+                                className={i < Math.floor(rating.rating || 0) ? "text-yellow-400" : "text-gray-300"}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </>
+                )}
               </div>
             </div>
           </section>

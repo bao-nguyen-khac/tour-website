@@ -121,3 +121,45 @@ export const getAllRatings = async (req, res) => {
     console.log(error);
   }
 };
+
+export const getLatestRatings = async (req, res) => {
+  try {
+    const limit = parseInt(req?.query?.limit) || 10;
+    const ratings = await RatingReview.find({})
+      .limit(limit)
+      .sort({ createdAt: -1 })
+      .lean();
+    
+    // Lấy thông tin package để có tên tour
+    const ratingsWithPackage = await Promise.all(
+      ratings.map(async (rating) => {
+        try {
+          const packageInfo = await Package.findById(rating.packageId).select("packageName packageDestination").lean();
+          return {
+            ...rating,
+            packageName: packageInfo?.packageName || "Tour không xác định",
+            packageDestination: packageInfo?.packageDestination || "",
+          };
+        } catch (err) {
+          // Nếu không tìm thấy package, vẫn trả về rating nhưng không có package info
+          return {
+            ...rating,
+            packageName: "Tour không xác định",
+            packageDestination: "",
+          };
+        }
+      })
+    );
+
+    return res.status(200).send({
+      success: true,
+      ratings: ratingsWithPackage,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({
+      success: false,
+      message: "Đã xảy ra lỗi khi lấy đánh giá!",
+    });
+  }
+};
