@@ -45,10 +45,10 @@ const Footer = () => {
           <div>
             <h4 className="uppercase tracking-wide text-sm text-slate-400 mb-3">Liên hệ chúng tôi</h4>
             <ul className="space-y-2 text-sm">
-              <li className="flex items-center gap-2"><FaMapMarkerAlt /> 123 Đường ABC, Thành phố XYZ</li>
-              <li className="flex items-center gap-2"><FaPhone /> +84 123 456 789</li>
-              <li className="flex items-center gap-2"><FaEnvelope /> contact@tourdulich.com</li>
-              <li className="flex items-center gap-2"><FaGlobe /> tourdulich.com</li>
+              <li className="flex items-center gap-2"><FaMapMarkerAlt /> 34 Nguyễn Viết Xuân, Đà Nẵng</li>
+              <li className="flex items-center gap-2"><FaPhone /> +84 708 024 251</li>
+              <li className="flex items-center gap-2"><FaEnvelope /> johnbach2019@gmail.com</li>
+              <li className="flex items-center gap-2"><FaGlobe /> travel-app-vbqf.onrender.com</li>
             </ul>
           </div>
         </div>

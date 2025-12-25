@@ -126,8 +126,8 @@ const About = () => {
                 />
               </div>
             </div>
-            <h3 className="text-2xl md:text-3xl font-bold mb-2">BaoNK</h3>
-            <p className="text-blue-100 text-lg">Full Stack Developer</p>
+            <h3 className="text-2xl md:text-3xl font-bold mb-2">Bach Tien Nguyen</h3>
+            <p className="text-blue-100 text-lg">Developer</p>
           </div>
 
           <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8">
