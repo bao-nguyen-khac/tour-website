@@ -184,6 +184,29 @@ function randomItem(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
+// Chọn package với tỉ lệ ưu tiên cho Huế, Đà Nẵng, Quảng Nam
+function randomPackageWithPriority(packages) {
+  const priorityDestinations = ["Huế", "Đà Nẵng", "Quảng Nam"];
+  
+  // Tách packages thành 2 nhóm: ưu tiên và không ưu tiên
+  const priorityPackages = packages.filter(
+    (pkg) => priorityDestinations.includes(pkg.packageDestination)
+  );
+  const otherPackages = packages.filter(
+    (pkg) => !priorityDestinations.includes(pkg.packageDestination)
+  );
+
+  // 70% chọn từ nhóm ưu tiên, 30% từ nhóm còn lại
+  if (priorityPackages.length > 0 && Math.random() < 0.7) {
+    return randomItem(priorityPackages);
+  } else if (otherPackages.length > 0) {
+    return randomItem(otherPackages);
+  }
+  
+  // Fallback nếu không có package nào
+  return randomItem(packages);
+}
+
 function randomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
@@ -272,7 +295,16 @@ async function generatePackages(count = 100) {
   return created;
 }
 
-async function generateBookings(packages, users, count = 100) {
+async function generateBookings(count = 100) {
+  // Lấy toàn bộ user & package hiện có trong DB
+  const users = await User.find({});
+  const packages = await Package.find({});
+
+  if (!users.length || !packages.length) {
+    console.log("⚠️ Không có user hoặc package trong database, bỏ qua fake booking.");
+    return [];
+  }
+
   const bookings = [];
 
   for (let i = 0; i < count; i++) {
@@ -293,7 +325,7 @@ async function generateBookings(packages, users, count = 100) {
   }
 
   const created = await Booking.insertMany(bookings);
-  console.log(`✅ Đã tạo ${created.length} lượt đặt tour (booking).`);
+  console.log(`✅ Đã tạo ${created.length} lượt đặt tour (booking) fake cho các tour hiện có.`);
   return created;
 }
 
@@ -406,8 +438,8 @@ async function main() {
 
     // const users = await generateUsers(100);
     // const packages = await generatePackages(100);
-    // await generateBookings(packages, users, 100);
-    await generateRatings(20);
+    await generateBookings(100);
+    // await generateRatings(20);
     // await generateSurveys(100);
 
     console.log("🎉 Hoàn tất seed dữ liệu giả.");

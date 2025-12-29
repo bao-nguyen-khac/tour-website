@@ -170,7 +170,7 @@ const About = () => {
           </div>
           <div className="bg-white rounded-2xl p-6 text-center shadow-lg border border-slate-100">
             <FaUsers className="text-4xl text-green-600 mx-auto mb-3" />
-            <h3 className="text-3xl font-bold text-slate-800 mb-1">1000+</h3>
+            <h3 className="text-3xl font-bold text-slate-800 mb-1">500+</h3>
             <p className="text-slate-600">Khách hàng</p>
           </div>
           <div className="bg-white rounded-2xl p-6 text-center shadow-lg border border-slate-100">
@@ -180,8 +180,8 @@ const About = () => {
           </div>
           <div className="bg-white rounded-2xl p-6 text-center shadow-lg border border-slate-100">
             <FaCalendarCheck className="text-4xl text-purple-600 mx-auto mb-3" />
-            <h3 className="text-3xl font-bold text-slate-800 mb-1">500+</h3>
-            <p className="text-slate-600">Tour đã đặt</p>
+            <h3 className="text-3xl font-bold text-slate-800 mb-1">100+</h3>
+            <p className="text-slate-600">Khảo sát</p>
           </div>
         </div>
       </div>
